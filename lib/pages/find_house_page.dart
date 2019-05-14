@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:renting_assistant/model/house_cover_model.dart';
 import 'package:renting_assistant/widgets/find_house_appbar.dart';
 import 'package:renting_assistant/widgets/house_cover_vertical.dart';
@@ -55,26 +56,17 @@ class _FindHousePageState extends State<FindHousePage> {
             if (snap.hasError)
               return Text('Error: ${snap.error}');
             return Container(
-              margin: EdgeInsets.only(top: 32.0),
+              margin: EdgeInsets.only(top: 36.0),
+              padding: EdgeInsets.only(top: 10.0),
               color: Colors.grey[100],
-              child: CustomScrollView(
-                slivers: <Widget>[
-                  SliverPadding(
-                    padding: EdgeInsets.all(10.0),
-                    sliver: SliverGrid(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8.0,
-                        mainAxisSpacing: 12.0,
-                        childAspectRatio: 9 / 14,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                            (context, index) => _houseCoverItemBuilder(context, index, snap),
-                        childCount: snap.data.length,
-                      ),
-                    ),
-                  ),
-                ],
+              child: new StaggeredGridView.countBuilder(
+                crossAxisCount: 4,
+                itemCount: snap.data.length,
+                mainAxisSpacing: 8.0,
+                crossAxisSpacing: 8.0,
+                padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                itemBuilder: (BuildContext context, int index) => _houseCoverItemBuilder(context, index, snap),
+                staggeredTileBuilder: (int index) => new StaggeredTile.fit(2),
               ),
             );
         }

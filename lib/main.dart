@@ -7,7 +7,6 @@ import 'package:renting_assistant/pages/main_page.dart';
 import 'package:renting_assistant/pages/search_page.dart';
 import 'package:renting_assistant/pages/setting_page.dart';
 import 'package:renting_assistant/pages/sign_in_page.dart';
-import 'package:renting_assistant/pages/temp_find_house.dart';
 
 // entry of application
 void main() {
@@ -36,7 +35,6 @@ class RentingAssistantAppState extends State<RentingAssistantApp> {
         "/sign-in": (BuildContext context) => new SignInPage(),
         "/setting": (BuildContext context) => new SettingPage(),
         "/dev-info": (BuildContext context) => new DevInfoPage(),
-        "/temp-info": (BuildContext context) => new TempFindHouse(),
       },
       theme: ThemeData(
         primaryColor: Colors.cyan[300]
