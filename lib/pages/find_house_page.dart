@@ -56,15 +56,14 @@ class _FindHousePageState extends State<FindHousePage> {
             if (snap.hasError)
               return Text('Error: ${snap.error}');
             return Container(
-              margin: EdgeInsets.only(top: 36.0),
-              padding: EdgeInsets.only(top: 10.0),
+              margin: EdgeInsets.only(top: 40.0),
               color: Colors.grey[100],
               child: new StaggeredGridView.countBuilder(
                 crossAxisCount: 4,
                 itemCount: snap.data.length,
                 mainAxisSpacing: 8.0,
                 crossAxisSpacing: 8.0,
-                padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
                 itemBuilder: (BuildContext context, int index) => _houseCoverItemBuilder(context, index, snap),
                 staggeredTileBuilder: (int index) => new StaggeredTile.fit(2),
               ),
