@@ -1,4 +1,6 @@
+import 'package:amap_base/amap_base.dart';
 import 'package:flutter/material.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/pages/home_page.dart';
 import 'package:renting_assistant/pages/find_house_page.dart';
 import 'package:renting_assistant/pages/InformationPage.dart';
@@ -12,7 +14,6 @@ class MainPage extends StatefulWidget {
 }
 
 class MainPageState extends State<MainPage> {
-
   int _currentIndex = 0;
   Color _defaultColor = Colors.grey;
   Color _activateColor = Colors.cyan[300];
@@ -20,6 +21,12 @@ class MainPageState extends State<MainPage> {
   final PageController _controller = PageController(
     initialPage: 0,
   );
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -48,26 +55,24 @@ class MainPageState extends State<MainPage> {
           BottomNavigationBarItem(
               icon: Icon(Icons.home, color: _defaultColor),
               title: Text('首页'),
-              activeIcon: Icon(Icons.home, color: _activateColor)
-          ),
+              activeIcon: Icon(Icons.home, color: _activateColor)),
           BottomNavigationBarItem(
               icon: Icon(Icons.search, color: _defaultColor),
               title: Text('找房'),
-              activeIcon: Icon(Icons.search, color: _activateColor)
-          ),
+              activeIcon: Icon(Icons.search, color: _activateColor)),
           BottomNavigationBarItem(
               icon: Icon(Icons.comment, color: _defaultColor),
               title: Text('社区'),
-              activeIcon: Icon(Icons.comment, color: _activateColor,)
-          ),
+              activeIcon: Icon(
+                Icons.comment,
+                color: _activateColor,
+              )),
           BottomNavigationBarItem(
               icon: Icon(Icons.person, color: _defaultColor),
               title: Text('我的'),
-              activeIcon: Icon(Icons.person, color: _activateColor)
-          )
+              activeIcon: Icon(Icons.person, color: _activateColor))
         ],
       ),
     );
   }
-
 }

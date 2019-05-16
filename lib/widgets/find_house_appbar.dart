@@ -61,7 +61,7 @@ class _FindHouseAppBarState extends State<FindHouseAppBar> {
                   flex: 1,
                   child: IconButton(
                     icon: Icon(Icons.location_on),
-                    onPressed: () => Navigator.of(context).pushNamed("/temp-info"),
+                    onPressed: () => Navigator.of(context).pushNamed("/find_house_map"),
                   ),
                 ),
               ],

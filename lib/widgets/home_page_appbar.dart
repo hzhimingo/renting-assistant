@@ -1,3 +1,4 @@
+import 'package:amap_base/amap_base.dart';
 import 'package:flutter/material.dart';
 import 'package:renting_assistant/pages/city_select_page.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
@@ -17,11 +18,37 @@ class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
 
 class HomePageAppBarState extends State<HomePageAppBar> {
   String _cityName = "北京";
+  final _amapLocation = AMapLocation();
+  final options = LocationClientOptions(
+    isOnceLocation: true,
+    locatingWithReGeocode: true,
+  );
 
   @override
   void initState() {
-    _readLocalCurrentCity();
     super.initState();
+    _amapLocation.init();
+    _readLocalCurrentCity();
+    _getCurrentCity();
+  }
+
+  void _getCurrentCity() async {
+    if (await Permissions().requestPermission()) {
+      _amapLocation.getLocation(options).then(
+            (value) {
+          setState(() {
+            if (value != null) {
+              setState(() {
+                _cityName = value.city.replaceAll("市", "");
+              });
+              LocalStore.saveCurrentCity(value.city);
+            }
+          });
+        },
+      );
+    } else {
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text('权限不足')));
+    }
   }
 
   void _readLocalCurrentCity() async{

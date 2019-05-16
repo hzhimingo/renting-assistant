@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:amap_base/amap_base.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:azlistview/azlistview.dart';
@@ -20,11 +21,19 @@ class _CitySelectCustomHeaderRouteState
   int _suspensionHeight = 40;
   int _itemHeight = 50;
   String _suspensionTag = "";
+  final _amapLocation = AMapLocation();
+  final options = LocationClientOptions(
+    isOnceLocation: true,
+    locatingWithReGeocode: true,
+  );
+  String _currentCityName = "北京市";
 
   @override
   void initState() {
     super.initState();
     loadData();
+    _amapLocation.init();
+    _getCurrentCity();
   }
 
   void loadData() async {
@@ -132,6 +141,24 @@ class _CitySelectCustomHeaderRouteState
     );
   }
 
+  void _getCurrentCity() async {
+    if (await Permissions().requestPermission()) {
+      _amapLocation.getLocation(options).then(
+            (value) {
+          setState(() {
+            if (value != null) {
+              setState(() {
+                _currentCityName = value.city;
+              });
+            }
+          });
+        },
+      );
+    } else {
+      Scaffold.of(context).showSnackBar(SnackBar(content: Text('权限不足')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -145,7 +172,7 @@ class _CitySelectCustomHeaderRouteState
                   Icons.place,
                   size: 20.0,
                 ),
-                Text(" 成都市"),
+                Text(_currentCityName),
               ],
             )),
         Divider(

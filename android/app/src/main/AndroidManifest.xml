@@ -10,6 +10,9 @@
         android:name="io.flutter.app.FlutterApplication"
         android:label="renting_assistant"
         android:icon="@mipmap/ic_launcher">
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="15d034e32a87970c0a8847eedf8afb7e"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
