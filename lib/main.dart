@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:renting_assistant/pages/dev_info_page.dart';
+import 'package:renting_assistant/pages/find_house_map_page.dart';
 import 'package:renting_assistant/pages/find_house_page.dart';
 import 'package:renting_assistant/pages/home_page.dart';
 import 'package:renting_assistant/pages/main_page.dart';
@@ -34,7 +35,7 @@ class RentingAssistantAppState extends State<RentingAssistantApp> {
         "/findHouse": (BuildContext context) => new FindHousePage(),
         "/sign-in": (BuildContext context) => new SignInPage(),
         "/setting": (BuildContext context) => new SettingPage(),
-        "/dev-info": (BuildContext context) => new DevInfoPage(),
+        "/find_house_map": (BuildContext context) => new FindHouseMapPage(),
       },
       theme: ThemeData(
         primaryColor: Colors.cyan[300]

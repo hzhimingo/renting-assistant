@@ -65,9 +65,11 @@ class HomePageAppBarState extends State<HomePageAppBar> {
                         .push(MaterialPageRoute(builder: (context) {
                           return CitySelectPage();
                     })).then((value) {
-                      setState(() {
-                        _cityName = value.name;
-                      });
+                      if (value != null) {
+                        setState(() {
+                          _cityName = value.name;
+                        });
+                      }
                     });
                   },
                 )),
