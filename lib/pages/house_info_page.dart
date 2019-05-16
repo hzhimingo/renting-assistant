@@ -4,6 +4,7 @@ import 'package:renting_assistant/model/HouseInfo.dart';
 import 'package:renting_assistant/widgets/house_cover_horizontal.dart';
 import 'package:renting_assistant/widgets/house_info_appbar.dart';
 import 'package:renting_assistant/widgets/house_info_label.dart';
+import 'package:renting_assistant/widgets/house_info_map.dart';
 
 const APPBAR_SCROLL_OFFSET = 100;
 
@@ -398,12 +399,19 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                     Padding(
                       padding:
                           EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
-                      child: Text("小区周边",
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                          )),
+                      child: Text(
+                        "小区周边",
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 12.0),
+                      height: 250.0,
+                      child: HouseInfoMap(),
                     ),
                     Container(
                       margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
@@ -412,12 +420,14 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 16.0, right: 16.0),
-                      child: Text("看过此房间的人还看了",
-                          style: TextStyle(
-                            fontSize: 18.0,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                          )),
+                      child: Text(
+                        "看过此房间的人还看了",
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                        ),
+                      ),
                     ),
                     ListView.builder(
                       shrinkWrap: true,
