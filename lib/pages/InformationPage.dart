@@ -7,7 +7,7 @@ class InformationPage extends StatefulWidget {
   }
 }
 
-class InformationPageState extends State<InformationPage> {
+class InformationPageState extends State<InformationPage> with AutomaticKeepAliveClientMixin{
 
   @override
   Widget build(BuildContext context) {
@@ -17,5 +17,8 @@ class InformationPageState extends State<InformationPage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }

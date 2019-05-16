@@ -11,14 +11,17 @@ class FindHousePage extends StatefulWidget {
   _FindHousePageState createState() => _FindHousePageState();
 }
 
-class _FindHousePageState extends State<FindHousePage> {
-
+class _FindHousePageState extends State<FindHousePage> with AutomaticKeepAliveClientMixin{
   bool _isMask = false;
   bool _isShowContent = false;
   Widget contentWidget;
+  Future<List<HouseCoverModel>> _houseCoverModelFuture;
+  List<HouseCoverModel> houseCoverModels = List();
 
   @override
   void initState() {
+    _houseCoverModelFuture = NetDataRepo().obtainHouseInfo();
+    _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
     super.initState();
   }
 
@@ -42,8 +45,9 @@ class _FindHousePageState extends State<FindHousePage> {
 
   Widget _body() {
     return FutureBuilder<List<HouseCoverModel>>(
-      future: NetDataRepo().obtainHouseInfo(),
-      builder: (BuildContext context, AsyncSnapshot<List<HouseCoverModel>> snap) {
+      future: _houseCoverModelFuture,
+      builder:
+          (BuildContext context, AsyncSnapshot<List<HouseCoverModel>> snap) {
         switch (snap.connectionState) {
           case ConnectionState.none:
           case ConnectionState.active:
@@ -53,29 +57,38 @@ class _FindHousePageState extends State<FindHousePage> {
               size: 50.0,
             );
           case ConnectionState.done:
-            if (snap.hasError)
-              return Text('Error: ${snap.error}');
+            if (snap.hasError) return Text('Error: ${snap.error}');
             return Container(
               margin: EdgeInsets.only(top: 40.0),
               color: Colors.grey[100],
               child: new StaggeredGridView.countBuilder(
                 crossAxisCount: 4,
-                itemCount: snap.data.length,
+                itemCount: 26,
                 mainAxisSpacing: 8.0,
                 crossAxisSpacing: 8.0,
                 padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
-                itemBuilder: (BuildContext context, int index) => _houseCoverItemBuilder(context, index, snap),
+               /* itemBuilder: (BuildContext context, int index) =>
+                    _houseCoverItemBuilder(context, index, snap),*/
+               itemBuilder: _houseCoverItemBuilder,
                 staggeredTileBuilder: (int index) => new StaggeredTile.fit(2),
               ),
             );
         }
-        return null;
+        return Container(
+          child: Text("没有找到你想要的内容"),
+        );
       },
     );
   }
 
-  Widget _houseCoverItemBuilder(BuildContext context, int index, AsyncSnapshot<List<HouseCoverModel>> snap) {
+  /*Widget _houseCoverItemBuilder(BuildContext context, int index,
+      AsyncSnapshot<List<HouseCoverModel>> snap) {
     HouseCoverModel houseCoverModel = snap.data[index];
+    return HouseCoverVertical(houseCoverModel);
+  }*/
+
+  Widget _houseCoverItemBuilder(BuildContext context, int index) {
+    HouseCoverModel houseCoverModel = houseCoverModels[index];
     return HouseCoverVertical(houseCoverModel);
   }
 
@@ -84,14 +97,13 @@ class _FindHousePageState extends State<FindHousePage> {
       return Positioned(
         top: 32.0,
         child: Column(
-          children: <Widget>[
-            contentWidget,
-            _mask()
-          ],
+          children: <Widget>[contentWidget, _mask()],
         ),
       );
     } else {
-      return Container(height: 0.0,);
+      return Container(
+        height: 0.0,
+      );
     }
   }
 
@@ -136,29 +148,146 @@ class _FindHousePageState extends State<FindHousePage> {
             flex: 1,
             child: GestureDetector(
               onTap: () {
-                _triggerContent(Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: 300.0,
-                  color: Colors.white,
-                  child: Column(
-                    children: <Widget>[
-                      Container(
-                        child: Column(
-                          children: <Widget>[
-                            Text("合租"),
-                            Container(
-                              child: Row(
+                _triggerContent(
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.white,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Padding(
+                                child: Text(
+                                  "合租",
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 10.0, bottom: 10.0, left: 10.0),
+                              ),
+                              Flex(
+                                direction: Axis.horizontal,
                                 children: <Widget>[
-
+                                  Expanded(
+                                    child: FilterTag("合租"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("2居"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("3居"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("4居"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("4居+"),
+                                  ),
                                 ],
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      )
-                    ],
+                        Container(
+                          padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Padding(
+                                child: Text(
+                                  "整租",
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 10.0, bottom: 10.0, left: 10.0),
+                              ),
+                              Flex(
+                                direction: Axis.horizontal,
+                                children: <Widget>[
+                                  Expanded(
+                                    child: FilterTag("整租"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("2居"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("3居"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("4居"),
+                                  ),
+                                  Expanded(
+                                    child: FilterTag("4居+"),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                          margin: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                          child: Flex(
+                            direction: Axis.horizontal,
+                            children: <Widget>[
+                              Expanded(
+                                flex: 2,
+                                child: Container(
+                                  margin:
+                                      EdgeInsets.only(left: 4.0, right: 4.0),
+                                  child: FlatButton(
+                                    onPressed: () {},
+                                    child: Text(
+                                      "重置",
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  height: 40.0,
+                                ),
+                              ),
+                              Expanded(
+                                flex: 3,
+                                child: Container(
+                                  margin:
+                                      EdgeInsets.only(left: 4.0, right: 4.0),
+                                  child: FlatButton(
+                                    onPressed: () {},
+                                    child: Text(
+                                      "确定",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 16.0),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                    ),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.cyan[300],
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  height: 40.0,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ));
+                );
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -177,9 +306,9 @@ class _FindHousePageState extends State<FindHousePage> {
             child: GestureDetector(
               onTap: () {
                 _triggerContent(Container(
+                  width: MediaQuery.of(context).size.width,
                   height: 500.0,
                   color: Colors.redAccent,
-                  child: Text("1111"),
                 ));
               },
               child: Row(
@@ -197,7 +326,92 @@ class _FindHousePageState extends State<FindHousePage> {
           Expanded(
             flex: 1,
             child: GestureDetector(
-              onTap: (){},
+              onTap: () {
+                _triggerContent(
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "不限",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "1000元以下",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "1000-1500元",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "2000-2500元",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "2500-3000元",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "3000-4000元",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: double.infinity,
+                          child: FlatButton(
+                            onPressed: () {},
+                            child: Text(
+                              "4000元以上",
+                              style: TextStyle(color: Colors.cyan[300]),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -213,7 +427,49 @@ class _FindHousePageState extends State<FindHousePage> {
           Expanded(
             flex: 1,
             child: GestureDetector(
-              onTap: (){},
+              onTap: () {
+                _triggerContent(
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.white,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.only(left: 8.0, right: 8.0),
+                          margin: EdgeInsets.only(bottom: 10.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              Padding(
+                                child: Text(
+                                  "合租",
+                                  style: TextStyle(fontSize: 18.0),
+                                ),
+                                padding: EdgeInsets.only(
+                                    top: 10.0, bottom: 10.0, left: 10.0),
+                              ),
+                              Wrap(
+                                direction: Axis.horizontal,
+                                children: <Widget>[
+                                  FilterTag("整租"),
+                                  FilterTag("整租"),
+                                  FilterTag("整租"),
+                                  FilterTag("整租"),
+                                  FilterTag("整租"),
+                                  FilterTag("整租"),
+                                  FilterTag("整租"),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
@@ -228,6 +484,57 @@ class _FindHousePageState extends State<FindHousePage> {
           ),
         ],
       ),
+    );
+  }
+
+  @override
+  bool get wantKeepAlive => true;
+}
+
+class FilterTag extends StatefulWidget {
+  final String filterTag;
+
+  FilterTag(this.filterTag);
+
+  @override
+  _FilterTagState createState() => _FilterTagState();
+}
+
+class _FilterTagState extends State<FilterTag> {
+  bool isActivate = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: Container(
+        child: Text(
+          widget.filterTag,
+          style: TextStyle(color: isActivate ? Colors.cyan[400] : Colors.black),
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isActivate ? Colors.cyan[200] : Colors.grey[300],
+          ),
+          borderRadius: BorderRadius.circular(
+            15.0,
+          ),
+          color: isActivate ? Colors.cyan[100] : Colors.white,
+        ),
+        alignment: Alignment.center,
+        margin: EdgeInsets.only(
+          left: 4.0,
+          right: 4.0,
+        ),
+        padding: EdgeInsets.only(
+          top: 4.0,
+          bottom: 4.0,
+        ),
+      ),
+      onTap: () {
+        setState(() {
+          isActivate = !isActivate;
+        });
+      },
     );
   }
 }

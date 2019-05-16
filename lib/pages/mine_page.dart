@@ -7,7 +7,7 @@ class MinePage extends StatefulWidget {
   }
 }
 
-class _MinePageState extends State<MinePage> {
+class _MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
   final _iconTextStyle = TextStyle(fontSize: 15.0, color: Colors.black38);
 
   @override
@@ -135,4 +135,7 @@ class _MinePageState extends State<MinePage> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
