@@ -6,6 +6,8 @@ import 'package:renting_assistant/pages/find_house_page.dart';
 import 'package:renting_assistant/pages/InformationPage.dart';
 import 'package:renting_assistant/pages/mine_page.dart';
 
+import 'find_house_fix.dart';
+
 class MainPage extends StatefulWidget {
   @override
   State<MainPage> createState() {
@@ -25,6 +27,11 @@ class MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    _clearCurrentCity();
+  }
+
+  void _clearCurrentCity() async {
+    await LocalStore.clearCurrentCity();
   }
 
 
@@ -37,7 +44,7 @@ class MainPageState extends State<MainPage> {
         controller: _controller,
         children: <Widget>[
           HomePage(),
-          FindHousePage(),
+          FindHouseFix(),
           InformationPage(),
           MinePage()
         ],

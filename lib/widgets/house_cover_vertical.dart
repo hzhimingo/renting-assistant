@@ -16,7 +16,7 @@ class HouseCoverVertical extends StatelessWidget {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return HouseInfoPage();
+            return HouseInfoPage(_houseCoverModel.houseId);
           }),
         );
       },

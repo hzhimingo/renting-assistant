@@ -15,7 +15,13 @@ class HouseInfoAppBar extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
             },
-          )
+          ),
+          IconButton(
+            icon: Icon(Icons.favorite_border),
+            onPressed: () {
+
+            },
+          ),
         ],
       ),
     );

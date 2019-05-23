@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:renting_assistant/pages/dev_info_page.dart';
+import 'package:renting_assistant/pages/find_house_fix.dart';
 import 'package:renting_assistant/pages/find_house_map_page.dart';
-import 'package:renting_assistant/pages/find_house_page.dart';
 import 'package:renting_assistant/pages/home_page.dart';
 import 'package:renting_assistant/pages/main_page.dart';
 import 'package:renting_assistant/pages/search_page.dart';
@@ -32,7 +32,7 @@ class RentingAssistantAppState extends State<RentingAssistantApp> {
       routes: <String, WidgetBuilder> {
         "/home": (BuildContext context) => new HomePage(),
         "/search": (BuildContext context) => new SearchPage(),
-        "/findHouse": (BuildContext context) => new FindHousePage(),
+        "/findHouse": (BuildContext context) => new FindHouseFix(),
         "/sign-in": (BuildContext context) => new SignInPage(),
         "/setting": (BuildContext context) => new SettingPage(),
         "/find_house_map": (BuildContext context) => new FindHouseMapPage(),

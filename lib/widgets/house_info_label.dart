@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:renting_assistant/model/house_detail.dart';
 
 class HouseInfoLabel extends StatelessWidget {
+  HouseDetailModel _houseDetailModel;
+
+
+  HouseInfoLabel(this._houseDetailModel);
 
   final _labelHeight = 35.0;
   final _alignment = Alignment.centerLeft;
@@ -32,7 +37,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "发布:  ", style: _labelTitleStyle),
-                            TextSpan(text: "1个月前", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.publishDate, style: _labelContentStyle)
                           ]
                       )
                   ),
@@ -47,7 +52,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "车位:  ", style: _labelTitleStyle),
-                            TextSpan(text: "暂无数据", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.parking, style: _labelContentStyle)
                           ]
                       )
                   ),
@@ -68,7 +73,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "用水:  ", style: _labelTitleStyle),
-                            TextSpan(text: "暂无数据", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.waterType, style: _labelContentStyle)
                           ]
                       )
                   ),
@@ -83,7 +88,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "用电:  ", style: _labelTitleStyle),
-                            TextSpan(text: "暂无数据", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.electricType, style: _labelContentStyle)
                           ]
                       )
                   ),
@@ -104,7 +109,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "燃气:  ", style: _labelTitleStyle),
-                            TextSpan(text: "有", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.hasGas==1? "有":"无", style: _labelContentStyle)
                           ]
                       )
                   ),
@@ -119,7 +124,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "采暖:  ", style: _labelTitleStyle),
-                            TextSpan(text: "暂无数据", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.hasHeater == 1 ? "有":"否", style: _labelContentStyle)
                           ]
                       )
                   ),
@@ -139,7 +144,7 @@ class HouseInfoLabel extends StatelessWidget {
                       TextSpan(
                           children: <TextSpan>[
                             TextSpan(text: "看房:  ", style: _labelTitleStyle),
-                            TextSpan(text: "需提前预约", style: _labelContentStyle)
+                            TextSpan(text: _houseDetailModel.lookHouse, style: _labelContentStyle)
                           ]
                       )
                   ),

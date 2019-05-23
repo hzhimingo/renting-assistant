@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:renting_assistant/model/house_cover_model.dart';
 import 'package:renting_assistant/pages/house_info_page.dart';
 import 'package:renting_assistant/widgets/house_info_tag.dart';
 
 class HouseCoverHorizontal extends StatelessWidget {
+  final HouseCoverModel _houseCoverModel;
+
+  HouseCoverHorizontal(this._houseCoverModel);
+
   final _infoLabelTextStyle = TextStyle(
     fontSize: 12.0,
     color: Colors.grey[600],
@@ -11,17 +16,17 @@ class HouseCoverHorizontal extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
+        print("OnTap");
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return HouseInfoPage();
+            return HouseInfoPage(_houseCoverModel.houseId);
           }),
         );
       },
       child: Container(
         margin: EdgeInsets.only(left: 16.0, right: 16.0),
         padding: EdgeInsets.only(top: 16.0, bottom: 16.0),
-      /*  height: 120.0,*/
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
@@ -40,7 +45,7 @@ class HouseCoverHorizontal extends StatelessWidget {
                   borderRadius: BorderRadius.circular(3.0),
                   image: DecorationImage(
                     image: NetworkImage(
-                      "https://image1.ljcdn.com/rent-user-avatar/33b47fbb-6c35-4772-8a46-026da88fe70a.780x439.jpg",
+                      _houseCoverModel.houseCoverImage,
                     ),
                     fit: BoxFit.fill,
                   ),
@@ -55,7 +60,7 @@ class HouseCoverHorizontal extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      "整租 ·   高楼层双东向两居室  观小区花园 无遮挡 户型方正",
+                      _houseCoverModel.houseTitle,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
@@ -69,15 +74,15 @@ class HouseCoverHorizontal extends StatelessWidget {
                     Row(
                       children: <Widget>[
                         Text(
-                          "3室2厅1卫/",
+                          "${_houseCoverModel.houseType}/",
                           style: _infoLabelTextStyle,
                         ),
                         Text(
-                          "156㎡/",
+                          "${_houseCoverModel.houseArea}㎡/",
                           style: _infoLabelTextStyle,
                         ),
                         Text(
-                          "13层",
+                          "${_houseCoverModel.houseFloor}层",
                           style: _infoLabelTextStyle,
                         )
                       ],
@@ -117,7 +122,7 @@ class HouseCoverHorizontal extends StatelessWidget {
                             ),
                           ),
                           TextSpan(
-                            text: "40000",
+                            text: "${_houseCoverModel.housePrice}",
                             style: TextStyle(
                               fontSize: 15.0,
                               color: Colors.redAccent,

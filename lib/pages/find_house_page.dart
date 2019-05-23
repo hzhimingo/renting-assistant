@@ -16,7 +16,7 @@ class _FindHousePageState extends State<FindHousePage> with AutomaticKeepAliveCl
   bool _isShowContent = false;
   Widget contentWidget;
   Future<List<HouseCoverModel>> _houseCoverModelFuture;
-  List<HouseCoverModel> houseCoverModels = List();
+  List<HouseCoverModel> houseCoverModels = [];
 
   @override
   void initState() {

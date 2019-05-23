@@ -2,9 +2,9 @@ import 'package:amap_base/amap_base.dart';
 import 'package:flutter/material.dart';
 import 'package:renting_assistant/pages/city_select_page.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
+import 'package:renting_assistant/even_bus/even_bus.dart';
 
 class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
-
   final height = 56.0;
 
   @override
@@ -16,7 +16,8 @@ class HomePageAppBar extends StatefulWidget implements PreferredSizeWidget {
   }
 }
 
-class HomePageAppBarState extends State<HomePageAppBar> {
+class HomePageAppBarState extends State<HomePageAppBar>
+    with AutomaticKeepAliveClientMixin {
   String _cityName = "北京";
   final _amapLocation = AMapLocation();
   final options = LocationClientOptions(
@@ -29,30 +30,40 @@ class HomePageAppBarState extends State<HomePageAppBar> {
     super.initState();
     _amapLocation.init();
     _readLocalCurrentCity();
-    _getCurrentCity();
+    _initCurrentCity();
+  }
+
+  void _initCurrentCity() async {
+    LocalStore.readCurrentCity().then((currentCity) {
+      if (currentCity == null) {
+        _getCurrentCity();
+      }
+    });
   }
 
   void _getCurrentCity() async {
-    if (await Permissions().requestPermission()) {
-      _amapLocation.getLocation(options).then(
-            (value) {
-          setState(() {
-            if (value != null) {
-              setState(() {
-                _cityName = value.city.replaceAll("市", "");
-              });
-              LocalStore.saveCurrentCity(value.city);
-            }
-          });
-        },
-      );
-    } else {
-      Scaffold.of(context).showSnackBar(SnackBar(content: Text('权限不足')));
+      if (await Permissions().requestPermission()) {
+        _amapLocation.getLocation(options).then(
+              (value) {
+            setState(() {
+              if (value != null) {
+                setState(() {
+                  _cityName = value.city.replaceAll("市", "");
+                });
+                LocalStore.saveCurrentCity(value.city.replaceAll("市", ""));
+                LocalStore.saveCurrentGeo(
+                    "${value.latitude},${value.longitude}");
+              }
+            });
+          },
+        );
+      } else {
+        Scaffold.of(context).showSnackBar(SnackBar(content: Text('权限不足')));
+      }
     }
-  }
 
-  void _readLocalCurrentCity() async{
-    LocalStore.readCurrentCity().then((value){
+  void _readLocalCurrentCity() async {
+    LocalStore.readCurrentCity().then((value) {
       if (value != null) {
         setState(() {
           _cityName = value;
@@ -90,12 +101,13 @@ class HomePageAppBarState extends State<HomePageAppBar> {
                   onTap: () {
                     Navigator.of(context)
                         .push(MaterialPageRoute(builder: (context) {
-                          return CitySelectPage();
+                      return CitySelectPage();
                     })).then((value) {
                       if (value != null) {
                         setState(() {
                           _cityName = value.name;
                         });
+                        eventBus.fire(RefreshHomeRecommendList("reset"));
                       }
                     });
                   },
@@ -141,4 +153,7 @@ class HomePageAppBarState extends State<HomePageAppBar> {
       ),
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

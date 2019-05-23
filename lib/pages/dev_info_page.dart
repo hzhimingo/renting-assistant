@@ -8,8 +8,6 @@ class DevInfoPage extends StatefulWidget {
 }
 
 class _DevInfoPageState extends State<DevInfoPage> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +24,10 @@ class _DevInfoPageState extends State<DevInfoPage> {
           ),
         ),
         centerTitle: true,
-        title: Text("开发者设置", style: TextStyle(fontSize: 17.0),),
+        title: Text(
+          "开发者设置",
+          style: TextStyle(fontSize: 17.0),
+        ),
         actions: <Widget>[
           GestureDetector(
             onTap: () => print("Save And Pop"),
@@ -57,12 +58,13 @@ class _DevInfoPageState extends State<DevInfoPage> {
               margin: EdgeInsets.only(top: 10.0),
               padding: EdgeInsets.all(8.0),
               color: Colors.white,
-              child: Text("服务器地址设置", style: TextStyle(fontSize: 16.0),),
+              child: Text(
+                "服务器地址设置",
+                style: TextStyle(fontSize: 16.0),
+              ),
             ),
             Row(
-              children: <Widget>[
-
-              ],
+              children: <Widget>[],
             ),
             Container(
               color: Colors.white,
@@ -80,6 +82,4 @@ class _DevInfoPageState extends State<DevInfoPage> {
       ),
     );
   }
-
-
 }
