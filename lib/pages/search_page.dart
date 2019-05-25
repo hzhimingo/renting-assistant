@@ -15,7 +15,7 @@ class SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: SearchPageAppBar(),
       body: Center(
-        child: Text('SearchPage'),
+        child: Text('搜索历史'),
       ),
     );
   }

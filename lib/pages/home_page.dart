@@ -27,7 +27,7 @@ class _HomePageState extends State<HomePage>
 
   @override
   void initState() {
-    _loadData(0, 10);
+    _loadData(1, 10);
     super.initState();
     print("Reload");
   }
@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage>
 
   void _listen() {
     eventBus.on<RefreshHomeRecommendList>().listen((event) {
-      _loadData(0, 10);
+      _loadData(1, 10);
     });
   }
 
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage>
                     return ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
-                      itemCount: 10,
+                      itemCount: houseCoverModels.length,
                       itemBuilder: _recommendHouseBuilder,
                     );
                 }

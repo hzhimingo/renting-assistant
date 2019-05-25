@@ -38,7 +38,6 @@ class FindHouseFixState extends State<FindHouseFix>
   Future<List<HouseCoverModel>> _houseCoverModelFuture;
   List<HouseCoverModel> houseCoverModels = [];
   ScrollController _controller = ScrollController();
-  int page = 0;
 
   @override
   bool get wantKeepAlive => true;
@@ -63,6 +62,7 @@ class FindHouseFixState extends State<FindHouseFix>
         condition.houseAreas = event.houseAreas;
       });
       LocalStore.saveFilterCondition(condition);
+      reloadData();
       closeFilterContent();
     });
     eventBus.on<ResetHouseTypeFilterEvent>().listen((event) {
@@ -83,11 +83,11 @@ class FindHouseFixState extends State<FindHouseFix>
           condition.lowPrice = int.parse(event.close.split("-")[0]);
           condition.highPrice = int.parse(event.close.split("-")[1]);
           if (event.close == "0-1000") {
-            filterTitle[2] = "1000元以下";
+            filterTitle[2] = "1000以下";
           } else if (event.close == "4000-0") {
-            filterTitle[2] = "4000元以上";
+            filterTitle[2] = "4000以上";
           } else {
-            filterTitle[2] = "${event.close}元";
+            filterTitle[2] = "${event.close}";
           }
         } else {
           condition.lowPrice = 0;
@@ -102,21 +102,22 @@ class FindHouseFixState extends State<FindHouseFix>
 
   @override
   void initState() {
-    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(0, 20);
+    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 20);
     _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
+    int page = 1;
     _controller.addListener(() {
       if (_controller.position.pixels ==
           _controller.position.maxScrollExtent) {
-        _loadMore(page++);
+        _loadMore(++page);
       }
     });
     super.initState();
   }
 
   void reloadData() {
-    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(0, 20);
+    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 20);
     setState(() {
-      houseCoverModels = [];
+      houseCoverModels.clear();
       _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
     });
   }
@@ -873,7 +874,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                     ),
                     Expanded(
                       child: FilterTag(
-                        filterTag: "40-60㎡",
+                        filterTag: "40-50㎡",
                         isActivate: houseAreas[3],
                         onPressed: () {
                           setState(() {
@@ -884,7 +885,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                     ),
                     Expanded(
                       child: FilterTag(
-                        filterTag: "60㎡以上",
+                        filterTag: "50㎡以上",
                         isActivate: houseAreas[4],
                         onPressed: () {
                           setState(() {
@@ -964,9 +965,6 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
       ),
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }
 
 class FilterTag extends StatelessWidget {

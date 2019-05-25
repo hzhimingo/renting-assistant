@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
-import 'package:renting_assistant/model/HouseInfo.dart';
 import 'package:renting_assistant/model/house_detail.dart';
 import 'package:renting_assistant/widgets/house_cover_horizontal.dart';
-import 'package:renting_assistant/widgets/house_info_appbar.dart';
 import 'package:renting_assistant/widgets/house_info_label.dart';
 import 'package:renting_assistant/widgets/house_info_map.dart';
-import 'package:renting_assistant/api/net_data_repo.dart';
 
 const APPBAR_SCROLL_OFFSET = 100;
 
@@ -70,9 +67,9 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
             case ConnectionState.active:
             case ConnectionState.waiting:
               return Center(
-                child: SpinKitThreeBounce(
+                child: SpinKitFadingCircle(
                   color: Colors.cyan[300],
-                  size: 30.0,
+                  size: 50.0,
                 ),
               );
             case ConnectionState.done:
@@ -104,15 +101,18 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 10.0),
+                              padding:
+                                  EdgeInsets.fromLTRB(30.0, 20.0, 30.0, 10.0),
                               child: Text(
                                 houseDetailModel.houseTitle,
                                 style: TextStyle(
-                                    fontSize: 19.0, fontWeight: FontWeight.w600),
+                                    fontSize: 19.0,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ),
                             Padding(
-                              padding: EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
+                              padding:
+                                  EdgeInsets.fromLTRB(30.0, 10.0, 30.0, 10.0),
                               child: Text.rich(
                                 TextSpan(
                                   children: <TextSpan>[
@@ -142,22 +142,27 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
+                              padding:
+                                  EdgeInsets.fromLTRB(25.0, 10.0, 25.0, 10.0),
                               child: Flex(
                                 direction: Axis.horizontal,
                                 children: <Widget>[
                                   Expanded(
                                     child: Container(
                                       height: 70.0,
-                                      margin: EdgeInsets.only(left: 2.0, right: 2.0),
+                                      margin: EdgeInsets.only(
+                                          left: 2.0, right: 2.0),
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5.0),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
                                           border: Border.all(
                                             color: Colors.grey[200],
                                           )),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Text(
                                             "面积",
@@ -169,7 +174,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                                             "${houseDetailModel.houseArea}㎡",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).primaryColor),
+                                                color: Theme.of(context)
+                                                    .primaryColor),
                                           ),
                                         ],
                                       ),
@@ -177,16 +183,20 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                                   ),
                                   Expanded(
                                     child: Container(
-                                      margin: EdgeInsets.only(left: 2.0, right: 2.0),
+                                      margin: EdgeInsets.only(
+                                          left: 2.0, right: 2.0),
                                       height: 70.0,
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5.0),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
                                           border: Border.all(
                                             color: Colors.grey[200],
                                           )),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Text("户型"),
                                           SizedBox(
@@ -196,7 +206,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                                             houseDetailModel.houseType,
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).primaryColor),
+                                                color: Theme.of(context)
+                                                    .primaryColor),
                                           )
                                         ],
                                       ),
@@ -205,15 +216,19 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                                   Expanded(
                                     child: Container(
                                       height: 70.0,
-                                      margin: EdgeInsets.only(left: 2.0, right: 2.0),
+                                      margin: EdgeInsets.only(
+                                          left: 2.0, right: 2.0),
                                       decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(5.0),
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
                                           border: Border.all(
                                             color: Colors.grey[200],
                                           )),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Text(houseDetailModel.floor),
                                           SizedBox(
@@ -223,7 +238,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                                             "有电梯",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                color: Theme.of(context).primaryColor),
+                                                color: Theme.of(context)
+                                                    .primaryColor),
                                           )
                                         ],
                                       ),
@@ -237,8 +253,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                               child: Divider(),
                             ),
                             Padding(
-                              padding:
-                              EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+                              padding: EdgeInsets.only(
+                                  left: 30.0, right: 30.0, top: 10.0),
                               child: Text("房屋信息",
                                   style: TextStyle(
                                     fontSize: 18.0,
@@ -252,8 +268,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                               child: Divider(),
                             ),
                             Padding(
-                              padding:
-                              EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+                              padding: EdgeInsets.only(
+                                  left: 30.0, right: 30.0, top: 10.0),
                               child: Text("租约信息",
                                   style: TextStyle(
                                     fontSize: 18.0,
@@ -263,11 +279,15 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                             ),
                             Container(
                               padding: EdgeInsets.only(
-                                  left: 30.0, right: 30.0, top: 20.0, bottom: 20.0),
+                                  left: 30.0,
+                                  right: 30.0,
+                                  top: 20.0,
+                                  bottom: 20.0),
                               child: Column(
                                 children: <Widget>[
                                   Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
                                     children: <Widget>[
                                       Icon(
                                         Icons.access_time,
@@ -347,8 +367,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                               child: Divider(),
                             ),
                             Padding(
-                              padding:
-                              EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+                              padding: EdgeInsets.only(
+                                  left: 30.0, right: 30.0, top: 10.0),
                               child: Text("房屋设施",
                                   style: TextStyle(
                                     fontSize: 18.0,
@@ -358,71 +378,13 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                             ),
                             Container(
                               padding: EdgeInsets.only(
-                                  left: 25.0, right: 25.0, top: 20.0, bottom: 20.0),
+                                  left: 25.0,
+                                  right: 25.0,
+                                  top: 20.0,
+                                  bottom: 20.0),
                               child: Flex(
                                 direction: Axis.horizontal,
-                                children: <Widget>[
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset(
-                                          "assets/images/bed.png",
-                                          width: _imageWidth,
-                                          height: _imageHeight,
-                                        ),
-                                        Text("床"),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset(
-                                          "assets/images/aircondition.png",
-                                          width: _imageWidth,
-                                          height: _imageHeight,
-                                        ),
-                                        Text("空调"),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset(
-                                          "assets/images/wardrobe.png",
-                                          width: _imageWidth,
-                                          height: _imageHeight,
-                                        ),
-                                        Text("衣柜"),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Image.asset(
-                                          "assets/images/tv.png",
-                                          width: _imageWidth,
-                                          height: _imageHeight,
-                                        ),
-                                        Text("电视"),
-                                      ],
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Column(
-                                      children: <Widget>[
-                                        IconButton(
-                                          icon: Icon(Icons.menu),
-                                          onPressed: () {
-                                            _openBottomSheet();
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
+                                children: _buildHouseFacCover(),
                               ),
                             ),
                             Padding(
@@ -430,8 +392,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                               child: Divider(),
                             ),
                             Padding(
-                              padding:
-                              EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
+                              padding: EdgeInsets.only(
+                                  left: 30.0, right: 30.0, top: 10.0),
                               child: Text(
                                 "小区周边",
                                 style: TextStyle(
@@ -480,7 +442,19 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                       ),
                     ),
                   ),
-                  HouseInfoAppBar(),
+                  Container(
+                    height: 80.0,
+                    padding: EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 32.0,
+                    ),
+                    child: Flex(
+                      direction: Axis.horizontal,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: _buildHouseInfoBar(),
+                    ),
+                  ),
                 ],
               );
           }
@@ -493,16 +467,221 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
     return HouseCoverHorizontal();
   }*/
 
+
+  List<Widget> _buildHouseInfoBar() {
+    List<Widget> appbar = [];
+    appbar.add(
+      Expanded(
+        flex: 1,
+        child: Container(
+          alignment: Alignment.centerLeft,
+          child: IconButton(
+            icon: Icon(Icons.arrow_back_ios),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+      ),
+    );
+    appbar.add(
+      Expanded(
+        flex: 1,
+        child: Container(
+          alignment: Alignment.centerRight,
+          child: IconButton(
+            icon: Icon(Icons.favorite, color: Colors.redAccent,),
+            onPressed: () {},
+          ),
+        ),
+      ),
+    );
+    if (appBarAlpha == 1) {
+      appbar.insert(
+        1,
+        Expanded(
+          flex: 3,
+          child: Container(
+            alignment: Alignment.center,
+            child: Text(
+              houseDetailModel.houseTitle,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ),
+      );
+    }
+    return appbar;
+  }
+
   _openBottomSheet() {
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
           width: double.infinity,
-          height: 300.0,
-          color: Colors.orange,
+          height: 240.0,
+          color: Colors.white,
+          padding: EdgeInsets.only(
+            top: 16.0,
+            bottom: 16.0,
+          ),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              childAspectRatio: 1.0,
+            ),
+            itemBuilder: _houseFacItemBuilder,
+            itemCount: _buildHouseFac().length,
+          ),
         );
       },
     );
+  }
+
+  Widget _houseFacItemBuilder(BuildContext context, int index) {
+    return _buildHouseFac()[index];
+  }
+
+  List<Widget> _buildHouseFac() {
+    List<Widget> lists = [];
+    if (houseDetailModel.hasBed == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/bed.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("床"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasTv == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/tv.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("电视"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasHeater == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/heater.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("热水器"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasAircondition == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/aircondition.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("空调"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasInternet == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/internet.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("无线网络"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasRefrigertor == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/refrigertor.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("冰箱"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasWardobe == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/wardobe.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("衣柜"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasWasher == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/washer.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("洗衣机"),
+        ],
+      ));
+    }
+    if (houseDetailModel.hasHeating == 1) {
+      lists.add(Column(
+        children: <Widget>[
+          Image.asset(
+            "assets/images/heating.png",
+            width: _imageWidth,
+            height: _imageHeight,
+          ),
+          Text("暖气"),
+        ],
+      ));
+    }
+    return lists;
+  }
+
+  List<Widget> _buildHouseFacCover() {
+    if (_buildHouseFac().length <= 4) {
+      List<Widget> lists = [];
+      for (int i = 0; i < _buildHouseFac().length; i++) {
+        lists.add(Expanded(child: lists[i]));
+      }
+      return lists;
+    } else {
+      List<Widget> lists = _buildHouseFac().sublist(0, 3);
+      List<Widget> newLists = [];
+      for (int i = 0; i < lists.length; i++) {
+        newLists.add(Expanded(child: lists[i]));
+      }
+      newLists.add(Expanded(
+        child: Column(
+          children: <Widget>[
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                _openBottomSheet();
+              },
+            ),
+          ],
+        ),
+      ));
+      return newLists;
+    }
   }
 }

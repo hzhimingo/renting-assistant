@@ -133,7 +133,7 @@ class HouseCoverVertical extends StatelessWidget {
   }
 
   List<Widget> _houseCoverTags () {
-    List<Widget> tags = List();
+    List<Widget> tags = [];
     if (_houseCoverModel.isNearBySubway == 1) {
       tags.add(HouseInfoTag(
         tagContent: "近地铁",

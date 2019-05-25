@@ -33,7 +33,7 @@ class HouseCoverModel {
       houseCoverImage: json["houseCoverImage"],
       houseArea: json["houseArea"],
       houseFloor: json["houseFloor"],
-      isNearBySubway: json["isNearBySubWay"],
+      isNearBySubway: json["isNearBySubway"],
       isNearByBusinessDistrict: json["isNearByBusinessDistrict"],
       rentMode: json["rentMode"],
       housePrice: json["housePrice"],

@@ -28,10 +28,15 @@ class MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     _clearCurrentCity();
+    _setDevAddress();
   }
 
   void _clearCurrentCity() async {
     await LocalStore.clearCurrentCity();
+  }
+
+  void _setDevAddress() async {
+    await LocalStore.saveDevServerAddress("192.168.31.83");
   }
 
 
