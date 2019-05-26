@@ -39,10 +39,10 @@ class ResetHouseMoreFilterEvent {
   }
 }
 
-class CloseFilterContentEvent {
-  String close;
-  CloseFilterContentEvent(String close) {
-    this.close = close;
+class PriceFilterContentEvent {
+  int level;
+  PriceFilterContentEvent(int level) {
+    this.level = level;
   }
 }
 

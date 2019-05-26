@@ -12,9 +12,9 @@ import 'package:renting_assistant/model/house_detail.dart';
 class NetDataRepo {
   /*static String devServerAddress = LocalStore.readDevServerAddress() as String;*/
   static BaseOptions options = BaseOptions(
-      baseUrl: "http://192.168.31.83/api/v1",
+      baseUrl: "http://192.168.43.112/api/v1",
       connectTimeout: 8000,
-      receiveTimeout: 5000);
+      receiveTimeout: 20000);
   static Dio _dio = Dio(options);
 
   Future<List<HouseCoverModel>> obtainHouseInfo() async {
@@ -39,6 +39,45 @@ class NetDataRepo {
     print("请求成功>>>>>>>>>>>>>>>>>>成功获取到了房源详细信息");
     await Future.delayed(Duration(milliseconds: 100));
     return houseDetailModel;
+  }
+
+  Future<List<HouseCoverModel>> obtainHouseRecommend(int page, int size) async {
+    String currentCity;
+    await LocalStore.readCurrentCity().then((value) {
+      if (value == null) {
+        currentCity = "北京";
+      } else {
+        currentCity = value;
+      }
+    });
+    Response response = await _dio.request(
+      "/house/getHouses",
+      options: Options(
+          method: "GET",
+          contentType: ContentType.parse("application/json")
+      ),
+      queryParameters: {
+        "areaClass": 0,
+        "bedRoom": 0,
+        "city": currentCity.replaceAll("市", ""),
+        "condition": "",
+        "highArea": 0,
+        "highPrice": 0,
+        "isHaveLift": 1,
+        "isNearBySubway": 0,
+        "page": page,
+        "rentMode": 0,
+        "size": size
+      },
+    );
+    List<HouseCoverModel> houseCovers = [];
+    if (response.data["data"] != null) {
+      response.data["data"].forEach((item) {
+        houseCovers.add(HouseCoverModel.fromJson(item));
+      });
+    }
+    print("请求成功>>>>>>>>>>>>>>>>>>获取到的房源数量为${houseCovers.length}");
+    return houseCovers;
   }
 
   Future<List<HouseCoverModel>> obtainHouseInfoFilter(int page, int size) async {
@@ -71,7 +110,6 @@ class NetDataRepo {
         "areaClass": 0,
         "bedRoom": 0,
         "city": currentCity.replaceAll("市", ""),
-        "condition": "",
         "highArea": 0,
         "highPrice": 0,
         "isHaveLift": condition.hasLift ? 1 : 0,
@@ -81,8 +119,7 @@ class NetDataRepo {
         "lowArea": 0,
         "lowPrice": 0,
         "page": page,
-        "priceClass": 0,
-        "region": "",
+        "priceClass": condition.priceClass,
         "rentMode": 0,
         "size": size
       },
@@ -93,6 +130,7 @@ class NetDataRepo {
         houseCovers.add(HouseCoverModel.fromJson(item));
       });
     }
+    print(response.request.queryParameters);
     print("请求成功>>>>>>>>>>>>>>>>>>获取到的房源数量为${houseCovers.length}");
     return houseCovers;
   }

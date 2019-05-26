@@ -13,7 +13,7 @@ class _HouseInfoMapState extends State<HouseInfoMap> {
   @override
   Widget build(BuildContext context) {
     return WebView(
-      initialUrl: "https://m.amap.com/",
+      initialUrl: "file:///android_asset/flutter_assets/assets/web/house_info_map.html",
       javascriptMode: JavascriptMode.unrestricted,
     );
   }

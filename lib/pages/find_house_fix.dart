@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
@@ -10,6 +13,7 @@ import 'package:renting_assistant/widgets/find_house_appbar.dart';
 import 'package:renting_assistant/widgets/house_cover_vertical.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/model/filter_condition.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FindHouseFix extends StatefulWidget {
   @override
@@ -42,7 +46,6 @@ class FindHouseFixState extends State<FindHouseFix>
   @override
   bool get wantKeepAlive => true;
 
-
   void _listen() {
     eventBus.on<SendHouseTypeFilterEvent>().listen((event) {
       setState(() {
@@ -54,6 +57,7 @@ class FindHouseFixState extends State<FindHouseFix>
       LocalStore.saveFilterCondition(condition);
       reloadData();
       closeFilterContent();
+      print("GetMessage-----> SendHouse");
     });
     eventBus.on<SendHouseMoreFilterEvent>().listen((event) {
       setState(() {
@@ -64,50 +68,63 @@ class FindHouseFixState extends State<FindHouseFix>
       LocalStore.saveFilterCondition(condition);
       reloadData();
       closeFilterContent();
+      print("GetMessage-----> SendHouseMOre");
     });
     eventBus.on<ResetHouseTypeFilterEvent>().listen((event) {
       setState(() {
         condition.resetHouseTypeFilter();
       });
       LocalStore.saveFilterCondition(condition);
+      print("GetMessage-----> HouseType");
     });
     eventBus.on<ResetHouseMoreFilterEvent>().listen((event) {
       setState(() {
         condition.resetHouseMoreFilter();
       });
       LocalStore.saveFilterCondition(condition);
+      print("GetMessage-----> RestHouseMore");
     });
-    eventBus.on<CloseFilterContentEvent>().listen((event) {
+    eventBus.on<PriceFilterContentEvent>().listen((event) {
       setState(() {
-        if (event.close != "close") {
-          condition.lowPrice = int.parse(event.close.split("-")[0]);
-          condition.highPrice = int.parse(event.close.split("-")[1]);
-          if (event.close == "0-1000") {
+        condition.priceClass = event.level;
+        switch (event.level) {
+          case 0:
+            filterTitle[2] = "价格";
+            break;
+          case 1:
             filterTitle[2] = "1000以下";
-          } else if (event.close == "4000-0") {
-            filterTitle[2] = "4000以上";
-          } else {
-            filterTitle[2] = "${event.close}";
-          }
-        } else {
-          condition.lowPrice = 0;
-          condition.highPrice = 0;
-          filterTitle[2] = "价格";
+            break;
+          case 2:
+            filterTitle[2] = "1000-2000";
+            break;
+          case 3:
+            filterTitle[2] = "2000-3000";
+            break;
+          case 4:
+            filterTitle[2] = "3000-4000";
+            break;
+          case 5:
+            filterTitle[2] = "4000-5000";
+            break;
+          case 6:
+            filterTitle[2] = "5000以上";
+            break;
         }
       });
       LocalStore.saveFilterCondition(condition);
+      reloadData();
       closeFilterContent();
+      print("GetMessage-----> Price");
     });
   }
 
   @override
   void initState() {
-    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 20);
+    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 30);
     _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
     int page = 1;
     _controller.addListener(() {
-      if (_controller.position.pixels ==
-          _controller.position.maxScrollExtent) {
+      if (_controller.position.pixels == _controller.position.maxScrollExtent) {
         _loadMore(++page);
       }
     });
@@ -116,14 +133,15 @@ class FindHouseFixState extends State<FindHouseFix>
 
   void reloadData() {
     _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 20);
-    setState(() {
+    _houseCoverModelFuture.then((value) {
       houseCoverModels.clear();
-      _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
+      houseCoverModels.addAll(value);
     });
   }
 
   _loadMore(int page) {
-    NetDataRepo().obtainHouseInfoFilter(page, 20).then((value) {
+    print("加载更多");
+    NetDataRepo().obtainHouseInfoFilter(page, 30).then((value) {
       setState(() {
         houseCoverModels.addAll(value);
       });
@@ -139,8 +157,8 @@ class FindHouseFixState extends State<FindHouseFix>
         children: <Widget>[
           FutureBuilder<List<HouseCoverModel>>(
             future: _houseCoverModelFuture,
-            builder:
-                (BuildContext context, AsyncSnapshot<List<HouseCoverModel>> snap) {
+            builder: (BuildContext context,
+                AsyncSnapshot<List<HouseCoverModel>> snap) {
               switch (snap.connectionState) {
                 case ConnectionState.none:
                 case ConnectionState.active:
@@ -185,9 +203,11 @@ class FindHouseFixState extends State<FindHouseFix>
                         itemCount: houseCoverModels.length,
                         mainAxisSpacing: 8.0,
                         crossAxisSpacing: 8.0,
-                        padding: EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
+                        padding:
+                            EdgeInsets.only(left: 8.0, right: 8.0, top: 8.0),
                         itemBuilder: _houseCoverItemBuilder,
-                        staggeredTileBuilder: (int index) => new StaggeredTile.fit(2),
+                        staggeredTileBuilder: (int index) =>
+                            new StaggeredTile.fit(2),
                       ),
                     );
                   }
@@ -336,18 +356,15 @@ class SwitchItem extends StatelessWidget {
 }
 
 class HouseTypeFilterBox extends StatefulWidget {
-
   @override
   _HouseTypeFilterBoxState createState() => _HouseTypeFilterBoxState();
 }
 
 class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
-
   bool isSelectAllEntireRent = false;
   bool isSelectAllSharedRent = false;
   List<bool> entireRents = [false, false, false, false];
   List<bool> sharedRents = [false, false, false, false];
-
 
   @override
   void initState() {
@@ -395,10 +412,10 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                         isActivate: isSelectAllSharedRent,
                         onPressed: () {
                           setState(() {
-                            if(isSelectAllSharedRent) {
+                            if (isSelectAllSharedRent) {
                               isSelectAllSharedRent = false;
                               for (int i = 0; i < sharedRents.length; i++) {
-                                  sharedRents[i] = false;
+                                sharedRents[i] = false;
                               }
                             } else {
                               isSelectAllSharedRent = true;
@@ -482,7 +499,7 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                         isActivate: isSelectAllEntireRent,
                         onPressed: () {
                           setState(() {
-                            if(isSelectAllEntireRent) {
+                            if (isSelectAllEntireRent) {
                               isSelectAllEntireRent = false;
                               for (int i = 0; i < entireRents.length; i++) {
                                 entireRents[i] = false;
@@ -597,7 +614,7 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                             isSelectAllSharedRent,
                             entireRents,
                             sharedRents,
-                        ),
+                          ),
                         );
                       },
                       child: Text(
@@ -630,11 +647,57 @@ class HouseRegion extends StatefulWidget {
 }
 
 class _HouseRegionState extends State<HouseRegion> {
+  List<String> regions = [];
+
+  @override
+  void initState() {
+    _loadRegion();
+    super.initState();
+  }
+
+  _loadRegion() async {
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    print(appDocDir.path);
+    AssetBundle rootBundle = PlatformAssetBundle();
+    String appDocPath = appDocDir.path;
+    DefaultAssetBundle.of(context)
+        .loadString(
+            "/data/user/0/com.leon.renting_assistant/code_cache/renting_assistantHSRJHT/renting_assistant/build/flutter/assets//data/region.json")
+        .then((value) {
+      Map<String, dynamic> map = jsonDecode(value);
+      LocalStore.readCurrentCity().then((value) {
+        List<dynamic> origin = map[value];
+        List<String> region = [];
+        for (int i = 0; i < origin.length; i++) {
+          region.add(origin[i] as String);
+        }
+        region.insert(0, "不限");
+        setState(() {
+          regions = region;
+        });
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 300.0,
       color: Colors.white,
+      child: ListView.builder(
+        itemBuilder: _regionListBuild,
+        itemCount: regions.length,
+      ),
+    );
+  }
+
+  Widget _regionListBuild(BuildContext context, int index) {
+    return FlatButton(
+      onPressed: () {},
+      child: Text(
+        regions[index],
+        style: TextStyle(fontSize: 15.0),
+      ),
     );
   }
 }
@@ -659,7 +722,7 @@ class _HousePriceFilterBoxState extends State<HousePriceFilterBox> {
             width: double.infinity,
             child: FlatButton(
               onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("close"));
+                eventBus.fire(PriceFilterContentEvent(0));
               },
               child: Text(
                 "不限",
@@ -671,7 +734,7 @@ class _HousePriceFilterBoxState extends State<HousePriceFilterBox> {
             width: double.infinity,
             child: FlatButton(
               onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("0-1000"));
+                eventBus.fire(PriceFilterContentEvent(1));
               },
               child: Text(
                 "1000元以下",
@@ -683,10 +746,10 @@ class _HousePriceFilterBoxState extends State<HousePriceFilterBox> {
             width: double.infinity,
             child: FlatButton(
               onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("1000-1500"));
+                eventBus.fire(PriceFilterContentEvent(2));
               },
               child: Text(
-                "1000-1500元",
+                "1000-2000元",
                 style: TextStyle(color: Colors.cyan[300]),
               ),
             ),
@@ -695,10 +758,10 @@ class _HousePriceFilterBoxState extends State<HousePriceFilterBox> {
             width: double.infinity,
             child: FlatButton(
               onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("2000-2500"));
+                eventBus.fire(PriceFilterContentEvent(3));
               },
               child: Text(
-                "2000-2500元",
+                "2000-3000元",
                 style: TextStyle(color: Colors.cyan[300]),
               ),
             ),
@@ -707,19 +770,7 @@ class _HousePriceFilterBoxState extends State<HousePriceFilterBox> {
             width: double.infinity,
             child: FlatButton(
               onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("2500-3000"));
-              },
-              child: Text(
-                "2500-3000元",
-                style: TextStyle(color: Colors.cyan[300]),
-              ),
-            ),
-          ),
-          Container(
-            width: double.infinity,
-            child: FlatButton(
-              onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("3000-4000"));
+                eventBus.fire(PriceFilterContentEvent(4));
               },
               child: Text(
                 "3000-4000元",
@@ -731,10 +782,22 @@ class _HousePriceFilterBoxState extends State<HousePriceFilterBox> {
             width: double.infinity,
             child: FlatButton(
               onPressed: () {
-                eventBus.fire(CloseFilterContentEvent("4000-0"));
+                eventBus.fire(PriceFilterContentEvent(5));
               },
               child: Text(
-                "4000元以上",
+                "4000-5000元",
+                style: TextStyle(color: Colors.cyan[300]),
+              ),
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            child: FlatButton(
+              onPressed: () {
+                eventBus.fire(PriceFilterContentEvent(6));
+              },
+              child: Text(
+                "5000元以上",
                 style: TextStyle(color: Colors.cyan[300]),
               ),
             ),
@@ -750,7 +813,7 @@ class HouseMoreFilterBox extends StatefulWidget {
   _HouseMoreFilterBoxState createState() => _HouseMoreFilterBoxState();
 }
 
-class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
+class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
   bool isNearBySubway = false;
   bool hasLift = false;
   List<bool> houseAreas = [false, false, false, false, false];
@@ -845,7 +908,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                         isActivate: houseAreas[0],
                         onPressed: () {
                           setState(() {
-                            houseAreas[0] =  !houseAreas[0];
+                            houseAreas[0] = !houseAreas[0];
                           });
                         },
                       ),
@@ -856,7 +919,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                         isActivate: houseAreas[1],
                         onPressed: () {
                           setState(() {
-                            houseAreas[1] =  !houseAreas[1];
+                            houseAreas[1] = !houseAreas[1];
                           });
                         },
                       ),
@@ -867,7 +930,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                         isActivate: houseAreas[2],
                         onPressed: () {
                           setState(() {
-                            houseAreas[2] =  !houseAreas[2];
+                            houseAreas[2] = !houseAreas[2];
                           });
                         },
                       ),
@@ -878,7 +941,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                         isActivate: houseAreas[3],
                         onPressed: () {
                           setState(() {
-                            houseAreas[3] =  !houseAreas[3];
+                            houseAreas[3] = !houseAreas[3];
                           });
                         },
                       ),
@@ -889,7 +952,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                         isActivate: houseAreas[4],
                         onPressed: () {
                           setState(() {
-                            houseAreas[4] =  !houseAreas[4];
+                            houseAreas[4] = !houseAreas[4];
                           });
                         },
                       ),
@@ -914,7 +977,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                         setState(() {
                           isNearBySubway = false;
                           hasLift = false;
-                          for(int i = 0; i < houseAreas.length; i++) {
+                          for (int i = 0; i < houseAreas.length; i++) {
                             houseAreas[i] = false;
                           }
                         });
@@ -941,7 +1004,8 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox>{
                     margin: EdgeInsets.only(left: 4.0, right: 4.0),
                     child: FlatButton(
                       onPressed: () {
-                        eventBus.fire(SendHouseMoreFilterEvent(isNearBySubway, hasLift, houseAreas));
+                        eventBus.fire(SendHouseMoreFilterEvent(
+                            isNearBySubway, hasLift, houseAreas));
                       },
                       child: Text(
                         "确定",

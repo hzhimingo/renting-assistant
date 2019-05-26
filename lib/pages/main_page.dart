@@ -1,6 +1,7 @@
 import 'package:amap_base/amap_base.dart';
 import 'package:flutter/material.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
+import 'package:renting_assistant/model/filter_condition.dart';
 import 'package:renting_assistant/pages/home_page.dart';
 import 'package:renting_assistant/pages/find_house_page.dart';
 import 'package:renting_assistant/pages/InformationPage.dart';
@@ -27,8 +28,8 @@ class MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    _clearCurrentCity();
     _setDevAddress();
+    _initFilterCondition();
   }
 
   void _clearCurrentCity() async {
@@ -37,6 +38,11 @@ class MainPageState extends State<MainPage> {
 
   void _setDevAddress() async {
     await LocalStore.saveDevServerAddress("192.168.31.83");
+  }
+
+  _initFilterCondition() async {
+    FilterCondition condition = FilterCondition();
+    LocalStore.saveFilterCondition(condition);
   }
 
 

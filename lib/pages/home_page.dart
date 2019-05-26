@@ -33,12 +33,14 @@ class _HomePageState extends State<HomePage>
   }
 
   _loadData(int page, int size) async {
-    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(page, size);
+    _houseCoverModelFuture = NetDataRepo().obtainHouseRecommend(page, size);
     setState(() {
-      if (houseCoverModels.length != 0) {
-        houseCoverModels = [];
-      }
-      _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
+      _houseCoverModelFuture.then((value) {
+        if (houseCoverModels.length != 0) {
+          houseCoverModels = [];
+        }
+        houseCoverModels.addAll(value);
+      });
     });
   }
 

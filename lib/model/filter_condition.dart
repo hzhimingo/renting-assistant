@@ -6,8 +6,7 @@ class FilterCondition {
   bool isNearBySubway = false;
   bool hasLift = false;
   List<bool> houseAreas = [false, false, false, false, false];
-  int lowPrice = 0;
-  int highPrice = 0;
+  int priceClass = 0;
 
   Map toJson() {
     Map map = Map();
@@ -18,6 +17,7 @@ class FilterCondition {
     map["isNearBySubway"] = this.isNearBySubway;
     map["hasLift"] = this.hasLift;
     map["houseAreas"] = this.houseAreas;
+    map["priceClass"] = this.priceClass;
     return map;
   }
 
@@ -36,6 +36,7 @@ class FilterCondition {
     }
     filterCondition.isNearBySubway = map["isNearBySubway"];
     filterCondition.hasLift = map["hasLift"];
+    filterCondition.priceClass = map["priceClass"];
     return filterCondition;
   }
 
