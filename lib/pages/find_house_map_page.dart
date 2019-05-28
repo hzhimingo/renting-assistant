@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class FindHouseMapPage extends StatefulWidget {
   @override
@@ -18,10 +18,9 @@ class _FindHouseMapPageState extends State<FindHouseMapPage>{
 
   @override
   Widget build(BuildContext context) {
-    return WebviewScaffold(
-      url: "https://m.amap.com/",
-      withJavascript: true,
-      geolocationEnabled: true,
+    return WebView(
+      initialUrl: "https://m.amap.com/",
+      javascriptMode: JavascriptMode.unrestricted,
     );
   }
 

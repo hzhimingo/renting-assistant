@@ -31,6 +31,8 @@ class HouseDetailModel {
   final int isNearByBusinessDistrict;
   final String houseIntroduce;
   final int collectStatus;
+  final String contactName;
+  final String contactTelephone;
 
   HouseDetailModel({
     this.houseId,
@@ -65,6 +67,8 @@ class HouseDetailModel {
     this.isNearByBusinessDistrict,
     this.houseIntroduce,
     this.collectStatus,
+    this.contactName,
+    this.contactTelephone,
   });
 
   factory HouseDetailModel.fromJson(Map<String, dynamic> json) {
@@ -101,6 +105,8 @@ class HouseDetailModel {
       isNearByBusinessDistrict: json["isNearByBusinessDistrict"],
       houseIntroduce: json["houseIntroduce"],
       collectStatus: json["collectStatus"],
+      contactName: json["contactName"],
+      contactTelephone: json["contactTelephone"],
     );
   }
 }

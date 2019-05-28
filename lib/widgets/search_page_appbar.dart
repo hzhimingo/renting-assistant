@@ -34,6 +34,9 @@ class _SearchPageAppBarState extends State<SearchPageAppBar> {
                   borderRadius: BorderRadius.circular(35.0),
                 ),
                 child: TextField(
+                  onEditingComplete: () {
+                    print("----------搜索--------------");
+                  },
                   controller: _searchController,
                   cursorColor: Colors.grey[600],
                   autofocus: true,

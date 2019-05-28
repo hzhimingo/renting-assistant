@@ -1,4 +1,5 @@
 import 'package:renting_assistant/model/filter_condition.dart';
+import 'package:renting_assistant/model/user_info.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -52,5 +53,33 @@ class LocalStore {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     FilterCondition condition = FilterCondition.fromMap(jsonDecode(preferences.get("conditionString")));
     return condition;
+  }
+
+  static Future saveAccessToken(String accessToken) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.setString("accessToken", accessToken);
+  }
+
+  static Future<String> readAccessToken() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String accessToken = preferences.get("accessToken");
+    return accessToken;
+  }
+
+  static Future removeAccessToken() async {
+    print('remove');
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.remove("accessToken");
+  }
+
+  static Future saveUserInfo(UserInfo userInfo) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    String json = jsonEncode(userInfo);
+    preferences.setString("userInfo", json);
+  }
+
+  static Future<UserInfo> readUserInfo() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.get("userInfo") != null ? UserInfo.fromJson(jsonDecode(preferences.get("userInfo"))) : null;
   }
 }

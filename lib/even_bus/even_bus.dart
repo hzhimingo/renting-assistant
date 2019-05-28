@@ -3,26 +3,22 @@ import 'package:event_bus/event_bus.dart';
 EventBus eventBus = EventBus();
 
 class SendHouseTypeFilterEvent {
-  bool isSelectAllEntireRent = false;
-  bool isSelectAllSharedRent = false;
-  List<bool> entireRents = [false, false, false, false];
-  List<bool> sharedRents = [false, false, false, false];
-  SendHouseTypeFilterEvent(bool isSelectAllEntireRent, bool isSelectAllSharedRent, List<bool> entireRents, List<bool> sharedRents) {
-    this.isSelectAllEntireRent = isSelectAllEntireRent;
-    this.isSelectAllSharedRent = isSelectAllSharedRent;
-    this.entireRents = entireRents;
-    this.sharedRents = sharedRents;
+  int rentMode;
+  int bedRoomCount;
+  SendHouseTypeFilterEvent(int rentMode, int bedRoomCount) {
+    this.rentMode = rentMode;
+    this.bedRoomCount = bedRoomCount;
   }
 }
 class SendHouseMoreFilterEvent{
   bool isNearBySubway;
   bool hasLift;
-  List<bool> houseAreas;
+  int areaClass;
 
-  SendHouseMoreFilterEvent(bool isNearBySubway, bool hasLift, List<bool> houseAreas) {
+  SendHouseMoreFilterEvent(bool isNearBySubway, bool hasLift, int areaClass) {
     this.isNearBySubway = isNearBySubway;
     this.hasLift = hasLift;
-    this.houseAreas = houseAreas;
+    this.areaClass = areaClass;
   }
 }
 class ResetHouseTypeFilterEvent {
@@ -52,3 +48,13 @@ class RefreshHomeRecommendList{
     this.refresh = refresh;
   }
 }
+
+class RegionFilterEvent {
+  String region;
+  RegionFilterEvent(String region) {
+    this.region = region;
+  }
+}
+
+class LogOutEvent {}
+class SignInEvent {}

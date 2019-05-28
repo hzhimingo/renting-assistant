@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/even_bus/even_bus.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
+import 'package:renting_assistant/model/user_info.dart';
 
 class MinePage extends StatefulWidget {
   @override
@@ -7,11 +11,66 @@ class MinePage extends StatefulWidget {
   }
 }
 
-class _MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
+class _MinePageState extends State<MinePage>
+    with AutomaticKeepAliveClientMixin {
   final _iconTextStyle = TextStyle(fontSize: 15.0, color: Colors.black38);
+  String accessToken;
+  UserInfo userInfo;
+
+  @override
+  void initState() {
+    loadAccessToken();
+    super.initState();
+
+  }
+
+  loadAccessToken() async {
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        accessToken = value;
+        loadUserInfo(value);//加载UserInfo
+      } else {
+
+      }
+    });
+  }
+
+  loadUserInfo(String accessToken) {
+    LocalStore.readUserInfo().then((value) {
+      if (value == null) {
+        print(accessToken);
+        NetDataRepo().obtainUserInfo(accessToken).then((value) {
+          if (value != null) {
+            LocalStore.saveUserInfo(value);
+            setState(() {
+              userInfo = value;
+            });
+          }
+        });
+      } else {
+        setState(() {
+          userInfo = value;
+        });
+      }
+    });
+  }
+
+  _listen() {
+    eventBus.on<LogOutEvent>().listen((event) {
+      setState(() {
+        accessToken = null;
+        userInfo = null;
+      });
+    });
+    eventBus.on<SignInEvent>().listen((event) {
+      loadAccessToken();
+    });
+  }
+
 
   @override
   Widget build(BuildContext context) {
+    _listen();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -20,7 +79,7 @@ class _MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
           Container(
             margin: EdgeInsets.only(right: 16.0),
             child: IconButton(
-              onPressed: ()=> Navigator.of(context).pushNamed("/setting"),
+              onPressed: () => Navigator.of(context).pushNamed("/setting"),
               icon: Icon(
                 Icons.settings,
                 color: Colors.grey[400],
@@ -38,7 +97,14 @@ class _MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
             child: Row(
               children: <Widget>[
                 GestureDetector(
-                  onTap: () => Navigator.of(context).pushNamed("/sign-in"),
+                  onTap: () {
+                    if (userInfo == null) {
+                      Navigator.of(context).pushNamed("/sign-in").then((value) {
+                      });
+                    } else {
+                      print("编辑个人信息");
+                    }
+                  },
                   child: Container(
                     margin: EdgeInsets.only(right: 25.0),
                     width: 65.0,
@@ -47,7 +113,9 @@ class _MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
                       borderRadius: BorderRadius.circular(65.0),
                       image: DecorationImage(
                         image: NetworkImage(
-                          "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827",
+                          userInfo != null
+                              ? userInfo.avatar
+                              : "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827",
                         ),
                         fit: BoxFit.fill,
                       ),
@@ -55,11 +123,24 @@ class _MinePageState extends State<MinePage> with AutomaticKeepAliveClientMixin{
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => Navigator.of(context).pushNamed("/sign-in"),
-                  child: Text(
-                    "登录/注册",
-                    style:
-                        TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
+                  onTap: () {
+                    if (userInfo == null) {
+                      Navigator.of(context).pushNamed("/sign-in").then((value) {
+                      });
+                    } else {
+                      print("编辑个人信息");
+                    }
+                  },
+                  child: Container(
+                    width: 200.0,
+                    child: Text(
+                      userInfo != null ? userInfo.nickname : "登录/注册",
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
               ],

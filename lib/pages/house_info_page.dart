@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/house_detail.dart';
 import 'package:renting_assistant/widgets/house_cover_horizontal.dart';
 import 'package:renting_assistant/widgets/house_info_label.dart';
@@ -26,6 +28,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
   final _bottomSheetScaffoldKey = GlobalKey<ScaffoldState>();
   Future<HouseDetailModel> _houseDetailFuture;
   HouseDetailModel houseDetailModel;
+  int collected = 0;
 
   _onScroll(offset) {
     double alpha = offset / APPBAR_SCROLL_OFFSET;
@@ -50,7 +53,9 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
     _houseDetailFuture.then((value) {
       setState(() {
         houseDetailModel = value;
+        collected = value.collectStatus;
       });
+      print(value.collectStatus);
     });
   }
 
@@ -369,6 +374,71 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                             Padding(
                               padding: EdgeInsets.only(
                                   left: 30.0, right: 30.0, top: 10.0),
+                              child: Text("联系人信息",
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black54,
+                                  )),
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(
+                                left: 25.0,
+                                right: 25.0,
+                                top: 20.0,
+                                bottom: 20.0,
+                              ),
+                              margin: EdgeInsets.only(
+                                left: 25.0,
+                                right: 25.0,
+                                top: 15.0,
+                                bottom: 10.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(color: Colors.grey[100]),
+                                borderRadius: BorderRadius.circular(8.0)
+                              ),
+                              child: Column(
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        '联系人：',
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${houseDetailModel.contactName}',
+                                        style: TextStyle(
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        '联系方式：',
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                        ),
+                                      ),
+                                      Text(
+                                        '${houseDetailModel.contactTelephone}',
+                                        style: TextStyle(
+                                          fontSize: 18.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(
+                                  left: 30.0, right: 30.0, top: 10.0),
                               child: Text("房屋设施",
                                   style: TextStyle(
                                     fontSize: 18.0,
@@ -378,10 +448,11 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                             ),
                             Container(
                               padding: EdgeInsets.only(
-                                  left: 25.0,
-                                  right: 25.0,
-                                  top: 20.0,
-                                  bottom: 20.0),
+                                left: 25.0,
+                                right: 25.0,
+                                top: 20.0,
+                                bottom: 20.0,
+                              ),
                               child: Flex(
                                 direction: Axis.horizontal,
                                 children: _buildHouseFacCover(),
@@ -406,7 +477,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                             Container(
                               margin: EdgeInsets.only(top: 12.0),
                               height: 250.0,
-                              child: HouseInfoMap(),
+                              child: HouseInfoMap(
+                                  "${houseDetailModel.longitude},${houseDetailModel.latitude}"),
                             ),
                             Container(
                               margin: EdgeInsets.only(top: 20.0, bottom: 20.0),
@@ -467,7 +539,6 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
     return HouseCoverHorizontal();
   }*/
 
-
   List<Widget> _buildHouseInfoBar() {
     List<Widget> appbar = [];
     appbar.add(
@@ -490,8 +561,53 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
         child: Container(
           alignment: Alignment.centerRight,
           child: IconButton(
-            icon: Icon(Icons.favorite, color: Colors.redAccent,),
-            onPressed: () {},
+            icon: collected == 1
+                ? Icon(
+                    Icons.favorite,
+                    color: Colors.redAccent,
+                  )
+                : Icon(
+                    Icons.favorite_border,
+                  ),
+            onPressed: () {
+              if (collected == 1) {
+                //取消关注
+                LocalStore.readAccessToken().then((value) {
+                  if (value == null) {
+                    print("登录");
+                  } else {
+                    NetDataRepo().collect(houseDetailModel.houseId, 0, value).then((value) {
+                      if (value == false) {
+                        _showToast("取消关注失败");
+                      } else {
+                        setState(() {
+                          collected = 0;
+                        });
+                        _showToast("取消关注成功");
+                      }
+                    });
+                  }
+                });
+              } else {
+                //关注
+                LocalStore.readAccessToken().then((value) {
+                  if (value == null) {
+                    print("登录");
+                  } else {
+                    NetDataRepo().collect(houseDetailModel.houseId, 1, value).then((value) {
+                      if (value == false) {
+                        _showToast("关注失败");
+                      } else {
+                        setState(() {
+                          collected = 1;
+                        });
+                        _showToast("关注成功");
+                      }
+                    });
+                  }
+                });
+              }
+            },
           ),
         ),
       ),
@@ -512,6 +628,18 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
       );
     }
     return appbar;
+  }
+
+  _showToast(String msg) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Color.fromRGBO(0, 0, 0, 0.6),
+        textColor: Colors.white,
+        fontSize: 14.0
+    );
   }
 
   _openBottomSheet() {
@@ -659,8 +787,11 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
   List<Widget> _buildHouseFacCover() {
     if (_buildHouseFac().length <= 4) {
       List<Widget> lists = [];
-      for (int i = 0; i < _buildHouseFac().length; i++) {
-        lists.add(Expanded(child: lists[i]));
+      print("Length: ${_buildHouseFac().length}");
+      if (_buildHouseFac().length != 0) {
+        for (int i = 0; i < _buildHouseFac().length; i++) {
+          lists.add(Expanded(child: _buildHouseFac()[i]));
+        }
       }
       return lists;
     } else {
@@ -684,4 +815,5 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
       return newLists;
     }
   }
+
 }

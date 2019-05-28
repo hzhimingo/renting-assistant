@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
@@ -13,7 +12,6 @@ import 'package:renting_assistant/widgets/find_house_appbar.dart';
 import 'package:renting_assistant/widgets/house_cover_vertical.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/model/filter_condition.dart';
-import 'package:path_provider/path_provider.dart';
 
 class FindHouseFix extends StatefulWidget {
   @override
@@ -32,7 +30,7 @@ class FindHouseFixState extends State<FindHouseFix>
   ];
   List<String> filterTitle = [
     "合/整租",
-    "昌平区",
+    "位置",
     "价格",
     "更多",
   ];
@@ -42,49 +40,44 @@ class FindHouseFixState extends State<FindHouseFix>
   Future<List<HouseCoverModel>> _houseCoverModelFuture;
   List<HouseCoverModel> houseCoverModels = [];
   ScrollController _controller = ScrollController();
+  int page = 1;
 
   @override
   bool get wantKeepAlive => true;
 
   void _listen() {
-    eventBus.on<SendHouseTypeFilterEvent>().listen((event) {
+    eventBus.on<SendHouseTypeFilterEvent>().listen((event) async{
       setState(() {
-        condition.isSelectAllSharedRent = event.isSelectAllSharedRent;
-        condition.isSelectAllEntireRent = event.isSelectAllEntireRent;
-        condition.entireRents = event.entireRents;
-        condition.sharedRents = event.sharedRents;
+        condition.rentMode = event.rentMode;
+        condition.bedRoomCount = event.bedRoomCount;
       });
       LocalStore.saveFilterCondition(condition);
       reloadData();
       closeFilterContent();
-      print("GetMessage-----> SendHouse");
     });
-    eventBus.on<SendHouseMoreFilterEvent>().listen((event) {
+    eventBus.on<SendHouseMoreFilterEvent>().listen((event) async {
       setState(() {
         condition.isNearBySubway = event.isNearBySubway;
         condition.hasLift = event.hasLift;
-        condition.houseAreas = event.houseAreas;
+        condition.areaClass = event.areaClass;
       });
       LocalStore.saveFilterCondition(condition);
       reloadData();
       closeFilterContent();
-      print("GetMessage-----> SendHouseMOre");
     });
-    eventBus.on<ResetHouseTypeFilterEvent>().listen((event) {
+    eventBus.on<ResetHouseTypeFilterEvent>().listen((event) async {
       setState(() {
         condition.resetHouseTypeFilter();
       });
       LocalStore.saveFilterCondition(condition);
-      print("GetMessage-----> HouseType");
     });
     eventBus.on<ResetHouseMoreFilterEvent>().listen((event) {
       setState(() {
         condition.resetHouseMoreFilter();
       });
       LocalStore.saveFilterCondition(condition);
-      print("GetMessage-----> RestHouseMore");
     });
-    eventBus.on<PriceFilterContentEvent>().listen((event) {
+    eventBus.on<PriceFilterContentEvent>().listen((event) async {
       setState(() {
         condition.priceClass = event.level;
         switch (event.level) {
@@ -114,7 +107,19 @@ class FindHouseFixState extends State<FindHouseFix>
       LocalStore.saveFilterCondition(condition);
       reloadData();
       closeFilterContent();
-      print("GetMessage-----> Price");
+    });
+    eventBus.on<RegionFilterEvent>().listen((event) async {
+      setState(() {
+        condition.region = event.region;
+        if (event.region == "不限") {
+          filterTitle[1] = "位置";
+        } else {
+          filterTitle[1] = event.region;
+        }
+      });
+      LocalStore.saveFilterCondition(condition);
+      reloadData();
+      closeFilterContent();
     });
   }
 
@@ -122,7 +127,6 @@ class FindHouseFixState extends State<FindHouseFix>
   void initState() {
     _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 30);
     _houseCoverModelFuture.then((value) => houseCoverModels.addAll(value));
-    int page = 1;
     _controller.addListener(() {
       if (_controller.position.pixels == _controller.position.maxScrollExtent) {
         _loadMore(++page);
@@ -131,16 +135,17 @@ class FindHouseFixState extends State<FindHouseFix>
     super.initState();
   }
 
-  void reloadData() {
-    _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 20);
-    _houseCoverModelFuture.then((value) {
-      houseCoverModels.clear();
-      houseCoverModels.addAll(value);
-    });
+  reloadData() async {
+   setState(() {
+     _houseCoverModelFuture = NetDataRepo().obtainHouseInfoFilter(1, 20).then((value){
+       print("------------------获取到数据-------------${value.length}");
+       houseCoverModels = [];
+       houseCoverModels.addAll(value);
+     });
+   });
   }
 
-  _loadMore(int page) {
-    print("加载更多");
+  _loadMore(int page) async {
     NetDataRepo().obtainHouseInfoFilter(page, 30).then((value) {
       setState(() {
         houseCoverModels.addAll(value);
@@ -232,6 +237,7 @@ class FindHouseFixState extends State<FindHouseFix>
   }
 
   Widget _houseCoverItemBuilder(BuildContext context, int index) {
+    print("THE LENGTH ${houseCoverModels.length}");
     HouseCoverModel houseCoverModel = houseCoverModels[index];
     return HouseCoverVertical(houseCoverModel);
   }
@@ -361,10 +367,9 @@ class HouseTypeFilterBox extends StatefulWidget {
 }
 
 class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
-  bool isSelectAllEntireRent = false;
-  bool isSelectAllSharedRent = false;
-  List<bool> entireRents = [false, false, false, false];
-  List<bool> sharedRents = [false, false, false, false];
+  int rentMode = 0;
+  int bedRoomCount = 0;
+  List<bool> rooms = [false, false, false, false, false];
 
   @override
   void initState() {
@@ -375,10 +380,18 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
   void loadData() async {
     LocalStore.readFilterCondition().then((filterCondition) {
       setState(() {
-        isSelectAllSharedRent = filterCondition.isSelectAllSharedRent;
-        isSelectAllEntireRent = filterCondition.isSelectAllEntireRent;
-        entireRents = filterCondition.entireRents;
-        sharedRents = filterCondition.sharedRents;
+        if (filterCondition.rentMode == 0) {
+          _resetAll();
+          rentMode = 0;
+        } else {
+          rentMode = filterCondition.rentMode;
+          if (filterCondition.bedRoomCount == 0) {
+            _resetAll();
+          } else {
+            int index = filterCondition.bedRoomCount - 1;
+            rooms[index] = true;
+          }
+        }
       });
     });
   }
@@ -398,7 +411,7 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
               children: <Widget>[
                 Padding(
                   child: Text(
-                    "合租",
+                    "合租/整租",
                     style: TextStyle(fontSize: 18.0),
                   ),
                   padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0),
@@ -408,20 +421,14 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                   children: <Widget>[
                     Expanded(
                       child: FilterTag(
-                        filterTag: "全部",
-                        isActivate: isSelectAllSharedRent,
+                        filterTag: "合租",
+                        isActivate: rentMode == 2 ? true : false,
                         onPressed: () {
                           setState(() {
-                            if (isSelectAllSharedRent) {
-                              isSelectAllSharedRent = false;
-                              for (int i = 0; i < sharedRents.length; i++) {
-                                sharedRents[i] = false;
-                              }
+                            if (rentMode == 2) {
+                              rentMode = 0;
                             } else {
-                              isSelectAllSharedRent = true;
-                              for (int i = 0; i < sharedRents.length; i++) {
-                                sharedRents[i] = true;
-                              }
+                              rentMode = 2;
                             }
                           });
                         },
@@ -429,44 +436,15 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                     ),
                     Expanded(
                       child: FilterTag(
-                        filterTag: "2居",
-                        isActivate: sharedRents[0],
+                        filterTag: "整租",
+                        isActivate: rentMode == 1 ? true : false,
                         onPressed: () {
                           setState(() {
-                            sharedRents[0] = !sharedRents[0];
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: FilterTag(
-                        filterTag: "3居",
-                        isActivate: sharedRents[1],
-                        onPressed: () {
-                          setState(() {
-                            sharedRents[1] = !sharedRents[1];
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: FilterTag(
-                        filterTag: "4居",
-                        isActivate: sharedRents[2],
-                        onPressed: () {
-                          setState(() {
-                            sharedRents[2] = !sharedRents[2];
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: FilterTag(
-                        filterTag: "4居+",
-                        isActivate: sharedRents[3],
-                        onPressed: () {
-                          setState(() {
-                            sharedRents[3] = !sharedRents[3];
+                            if (rentMode == 1) {
+                              rentMode = 0;
+                            } else {
+                              rentMode = 1;
+                            }
                           });
                         },
                       ),
@@ -485,7 +463,7 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
               children: <Widget>[
                 Padding(
                   child: Text(
-                    "整租",
+                    "房间数量",
                     style: TextStyle(fontSize: 18.0),
                   ),
                   padding: EdgeInsets.only(top: 10.0, bottom: 10.0, left: 10.0),
@@ -495,20 +473,16 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                   children: <Widget>[
                     Expanded(
                       child: FilterTag(
-                        filterTag: "全部",
-                        isActivate: isSelectAllEntireRent,
+                        filterTag: "1居",
+                        isActivate: rooms[0],
                         onPressed: () {
                           setState(() {
-                            if (isSelectAllEntireRent) {
-                              isSelectAllEntireRent = false;
-                              for (int i = 0; i < entireRents.length; i++) {
-                                entireRents[i] = false;
-                              }
+                            _resetAll();
+                            if (rooms[0]) {
+                              rooms[0] = false;
                             } else {
-                              isSelectAllEntireRent = true;
-                              for (int i = 0; i < entireRents.length; i++) {
-                                entireRents[i] = true;
-                              }
+                              rooms[0] = true;
+                              bedRoomCount = 1;
                             }
                           });
                         },
@@ -517,10 +491,16 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                     Expanded(
                       child: FilterTag(
                         filterTag: "2居",
-                        isActivate: entireRents[0],
+                        isActivate: rooms[1],
                         onPressed: () {
                           setState(() {
-                            entireRents[0] = !entireRents[0];
+                            _resetAll();
+                            if (rooms[1]) {
+                              rooms[1] = false;
+                            } else {
+                              rooms[1] = true;
+                              bedRoomCount = 2;
+                            }
                           });
                         },
                       ),
@@ -528,10 +508,16 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                     Expanded(
                       child: FilterTag(
                         filterTag: "3居",
-                        isActivate: entireRents[1],
+                        isActivate: rooms[2],
                         onPressed: () {
                           setState(() {
-                            entireRents[1] = !entireRents[1];
+                            _resetAll();
+                            if (rooms[2]) {
+                              rooms[2] = false;
+                            } else {
+                              rooms[2] = true;
+                              bedRoomCount = 3;
+                            }
                           });
                         },
                       ),
@@ -539,10 +525,16 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                     Expanded(
                       child: FilterTag(
                         filterTag: "4居",
-                        isActivate: entireRents[2],
+                        isActivate: rooms[3],
                         onPressed: () {
                           setState(() {
-                            entireRents[2] = !entireRents[2];
+                            _resetAll();
+                            if (rooms[3]) {
+                              rooms[3] = false;
+                            } else {
+                              rooms[3] = true;
+                              bedRoomCount = 4;
+                            }
                           });
                         },
                       ),
@@ -550,10 +542,16 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                     Expanded(
                       child: FilterTag(
                         filterTag: "4居+",
-                        isActivate: entireRents[3],
+                        isActivate: rooms[4],
                         onPressed: () {
                           setState(() {
-                            entireRents[3] = !entireRents[3];
+                            _resetAll();
+                            if (rooms[4]) {
+                              rooms[4] = false;
+                            } else {
+                              rooms[4] = true;
+                              bedRoomCount = 5;
+                            }
                           });
                         },
                       ),
@@ -576,14 +574,9 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                     child: FlatButton(
                       onPressed: () {
                         setState(() {
-                          isSelectAllEntireRent = false;
-                          isSelectAllSharedRent = false;
-                          for (int i = 0; i < entireRents.length; i++) {
-                            entireRents[i] = false;
-                          }
-                          for (int i = 0; i < sharedRents.length; i++) {
-                            sharedRents[i] = false;
-                          }
+                          _resetAll();
+                          rentMode = 0;
+                          bedRoomCount = 0;
                         });
                         eventBus.fire(ResetHouseTypeFilterEvent("reset"));
                       },
@@ -610,10 +603,7 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
                       onPressed: () {
                         eventBus.fire(
                           SendHouseTypeFilterEvent(
-                            isSelectAllEntireRent,
-                            isSelectAllSharedRent,
-                            entireRents,
-                            sharedRents,
+                            rentMode, bedRoomCount,
                           ),
                         );
                       },
@@ -639,6 +629,12 @@ class _HouseTypeFilterBoxState extends State<HouseTypeFilterBox> {
       ),
     );
   }
+
+  _resetAll() {
+    for (int i = 0; i < rooms.length;  i++) {
+      rooms[i] = false;
+    }
+  }
 }
 
 class HouseRegion extends StatefulWidget {
@@ -656,13 +652,8 @@ class _HouseRegionState extends State<HouseRegion> {
   }
 
   _loadRegion() async {
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    print(appDocDir.path);
-    AssetBundle rootBundle = PlatformAssetBundle();
-    String appDocPath = appDocDir.path;
     DefaultAssetBundle.of(context)
-        .loadString(
-            "/data/user/0/com.leon.renting_assistant/code_cache/renting_assistantHSRJHT/renting_assistant/build/flutter/assets//data/region.json")
+        .loadString("assets/data/region.json")
         .then((value) {
       Map<String, dynamic> map = jsonDecode(value);
       LocalStore.readCurrentCity().then((value) {
@@ -693,7 +684,9 @@ class _HouseRegionState extends State<HouseRegion> {
 
   Widget _regionListBuild(BuildContext context, int index) {
     return FlatButton(
-      onPressed: () {},
+      onPressed: () {
+        eventBus.fire(RegionFilterEvent(regions[index]));
+      },
       child: Text(
         regions[index],
         style: TextStyle(fontSize: 15.0),
@@ -817,6 +810,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
   bool isNearBySubway = false;
   bool hasLift = false;
   List<bool> houseAreas = [false, false, false, false, false];
+  int areaClass = 0;
 
   @override
   void initState() {
@@ -827,9 +821,12 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
   void loadData() async {
     LocalStore.readFilterCondition().then((filterCondition) {
       setState(() {
-        isNearBySubway = filterCondition.isNearBySubway;
-        hasLift = filterCondition.hasLift;
-        houseAreas = filterCondition.houseAreas;
+        if (filterCondition.areaClass == 0) {
+          _resetAll();
+        } else {
+          int index = filterCondition.areaClass - 1;
+          houseAreas[index] = true;
+        }
       });
     });
   }
@@ -907,8 +904,14 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
                         filterTag: "10-20㎡",
                         isActivate: houseAreas[0],
                         onPressed: () {
+                          _resetAll();
                           setState(() {
-                            houseAreas[0] = !houseAreas[0];
+                            if (houseAreas[0]) {
+                              houseAreas[0] = false;
+                            } else {
+                              houseAreas[0] = true;
+                              areaClass = 1;
+                            }
                           });
                         },
                       ),
@@ -918,8 +921,14 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
                         filterTag: "20-30㎡",
                         isActivate: houseAreas[1],
                         onPressed: () {
+                          _resetAll();
                           setState(() {
-                            houseAreas[1] = !houseAreas[1];
+                            if (houseAreas[1]) {
+                              houseAreas[1] = false;
+                            } else {
+                              houseAreas[1] = true;
+                              areaClass = 2;
+                            }
                           });
                         },
                       ),
@@ -929,8 +938,14 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
                         filterTag: "30-40㎡",
                         isActivate: houseAreas[2],
                         onPressed: () {
+                          _resetAll();
                           setState(() {
-                            houseAreas[2] = !houseAreas[2];
+                            if (houseAreas[2]) {
+                              houseAreas[2] = false;
+                            } else {
+                              houseAreas[2] = true;
+                              areaClass = 3;
+                            }
                           });
                         },
                       ),
@@ -940,8 +955,14 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
                         filterTag: "40-50㎡",
                         isActivate: houseAreas[3],
                         onPressed: () {
+                          _resetAll();
                           setState(() {
-                            houseAreas[3] = !houseAreas[3];
+                            if (houseAreas[3]) {
+                              houseAreas[3] = false;
+                            } else {
+                              houseAreas[3] = true;
+                              areaClass = 4;
+                            }
                           });
                         },
                       ),
@@ -951,8 +972,14 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
                         filterTag: "50㎡以上",
                         isActivate: houseAreas[4],
                         onPressed: () {
+                          _resetAll();
                           setState(() {
-                            houseAreas[4] = !houseAreas[4];
+                            if (houseAreas[4]) {
+                              houseAreas[4] = false;
+                            } else {
+                              houseAreas[4] = true;
+                              areaClass = 5;
+                            }
                           });
                         },
                       ),
@@ -1005,7 +1032,7 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
                     child: FlatButton(
                       onPressed: () {
                         eventBus.fire(SendHouseMoreFilterEvent(
-                            isNearBySubway, hasLift, houseAreas));
+                            isNearBySubway, hasLift, areaClass));
                       },
                       child: Text(
                         "确定",
@@ -1028,6 +1055,14 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
         ],
       ),
     );
+  }
+
+  _resetAll() {
+    for (int i = 0; i < houseAreas.length; i++) {
+      setState(() {
+        houseAreas[i]  = false;
+      });
+    }
   }
 }
 

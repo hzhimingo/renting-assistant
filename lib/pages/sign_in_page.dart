@@ -2,6 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/even_bus/even_bus.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
+
+import 'mine_page.dart';
 
 class SignInPage extends StatefulWidget {
   @override
@@ -138,7 +143,16 @@ class SignInPageState extends State<SignInPage> {
        _showToast("请输入验证码");
      }
    } else {
-     _showToast("登录中");
+     _showToast("登录中....");
+     NetDataRepo().signIn(_phoneController.value.text, _checkCodeController.value.text).then((value) {
+       if (value != null) {
+         LocalStore.saveAccessToken(value);
+         eventBus.fire(SignInEvent());
+         Navigator.of(context).pop();
+       } else {
+         _showToast("登录失败");
+       }
+     });
    }
   }
 
@@ -153,6 +167,7 @@ class SignInPageState extends State<SignInPage> {
       } else if (_validatePhone(_phoneController.value.text)) {
 
       } else {
+        NetDataRepo().sendCheckCode(_phoneController.value.text);
         countdown();
         _showToast("发送成功");
       }
