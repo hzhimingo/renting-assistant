@@ -3,6 +3,9 @@ import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/user_info.dart';
+import 'package:renting_assistant/pages/collect_page.dart';
+import 'package:renting_assistant/pages/history_page.dart';
+import 'package:renting_assistant/pages/message_page.dart';
 
 class MinePage extends StatefulWidget {
   @override
@@ -154,45 +157,78 @@ class _MinePageState extends State<MinePage>
               direction: Axis.horizontal,
               children: <Widget>[
                 Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.favorite_border,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      Text(
-                        "关注",
-                        style: _iconTextStyle,
-                      )
-                    ],
+                  child: GestureDetector(
+                    onTap: () {
+                      if (userInfo == null) {
+                        print("ToLogin");
+                      } else {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                          return CollectPage();
+                        }));
+                      }
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        Icon(
+                          Icons.favorite_border,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        Text(
+                          "关注",
+                          style: _iconTextStyle,
+                        )
+                      ],
+                    ),
+                  )
+                ),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      if (userInfo == null) {
+                        print("ToLogin");
+                      } else {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                          return HistoryPage();
+                        }));
+                      }
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        Icon(
+                          Icons.history,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        Text(
+                          "足迹",
+                          style: _iconTextStyle,
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.history,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      Text(
-                        "足迹",
-                        style: _iconTextStyle,
-                      )
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
-                    children: <Widget>[
-                      Icon(
-                        Icons.question_answer,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      Text(
-                        "消息",
-                        style: _iconTextStyle,
-                      )
-                    ],
+                  child: GestureDetector(
+                    onTap: () {
+                      if (userInfo == null) {
+                        print("ToLogin");
+                      } else {
+                        Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                          return MessagePage();
+                        }));
+                      }
+                    },
+                    child: Column(
+                      children: <Widget>[
+                        Icon(
+                          Icons.question_answer,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                        Text(
+                          "消息",
+                          style: _iconTextStyle,
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 Expanded(
@@ -212,6 +248,9 @@ class _MinePageState extends State<MinePage>
               ],
             ),
           ),
+          Container(
+            child: Text('房源数据'),
+          )
         ],
       ),
     );
