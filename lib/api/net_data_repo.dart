@@ -12,7 +12,7 @@ import 'package:renting_assistant/model/user_info.dart';
 class NetDataRepo {
   /*static String devServerAddress = LocalStore.readDevServerAddress() as String;*/
   static BaseOptions options = BaseOptions(
-      baseUrl: "http://192.168.43.112/api/v1",
+      baseUrl: "http://192.168.31.83/api/v1",
       connectTimeout: 10000,
       receiveTimeout: 10000);
   static Dio _dio = Dio(options);
@@ -256,5 +256,49 @@ class NetDataRepo {
     } else {
       return false;
     }
+  }
+
+  Future<List<HouseCoverModel>> obtainCollectList() async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    Response response = await _dio.get(
+      "/userInfo/getCollectHouse",
+      options: Options(
+        headers: headers
+      ),
+    );
+    List<HouseCoverModel> houseCovers = [];
+    if (response.data["data"] != null) {
+      response.data["data"].forEach((item) {
+        houseCovers.add(HouseCoverModel.fromJson(item));
+      });
+    }
+    return houseCovers;
+  }
+
+  Future<List<HouseCoverModel>> obtainHistoryList() async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    Response response = await _dio.get(
+      "/userInfo/getBrowserHistory",
+      options: Options(
+          headers: headers
+      ),
+    );
+    List<HouseCoverModel> houseCovers = [];
+    if (response.data["data"] != null) {
+      response.data["data"].forEach((item) {
+        houseCovers.add(HouseCoverModel.fromJson(item));
+      });
+    }
+    return houseCovers;
   }
 }

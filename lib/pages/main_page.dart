@@ -1,9 +1,7 @@
-import 'package:amap_base/amap_base.dart';
 import 'package:flutter/material.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/filter_condition.dart';
 import 'package:renting_assistant/pages/home_page.dart';
-import 'package:renting_assistant/pages/find_house_page.dart';
 import 'package:renting_assistant/pages/InformationPage.dart';
 import 'package:renting_assistant/pages/mine_page.dart';
 
@@ -45,7 +43,6 @@ class MainPageState extends State<MainPage> {
     LocalStore.saveFilterCondition(condition);
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,24 +68,28 @@ class MainPageState extends State<MainPage> {
         type: BottomNavigationBarType.fixed,
         items: [
           BottomNavigationBarItem(
-              icon: Icon(Icons.home, color: _defaultColor),
+              icon: Icon(IconData(0xe630, fontFamily: 'iconfont'),
+                  color: _defaultColor),
               title: Text('首页'),
-              activeIcon: Icon(Icons.home, color: _activateColor)),
+              activeIcon: Icon(IconData(0xe630, fontFamily: 'iconfont'),
+                  color: _activateColor)),
           BottomNavigationBarItem(
               icon: Icon(Icons.search, color: _defaultColor),
               title: Text('找房'),
               activeIcon: Icon(Icons.search, color: _activateColor)),
           BottomNavigationBarItem(
-              icon: Icon(Icons.comment, color: _defaultColor),
-              title: Text('社区'),
-              activeIcon: Icon(
-                Icons.comment,
-                color: _activateColor,
-              )),
+            icon: Icon(IconData(0xe7d5, fontFamily: 'iconfont'),
+                color: _defaultColor),
+            title: Text('社区'),
+            activeIcon: Icon(
+              IconData(0xe7d5, fontFamily: 'iconfont'),
+              color: _activateColor,
+            ),
+          ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.person, color: _defaultColor),
+              icon: Icon(IconData(0xe612, fontFamily: 'iconfont'), color: _defaultColor),
               title: Text('我的'),
-              activeIcon: Icon(Icons.person, color: _activateColor))
+              activeIcon: Icon(IconData(0xe612, fontFamily: 'iconfont'), color: _activateColor))
         ],
       ),
     );

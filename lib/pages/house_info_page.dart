@@ -3,6 +3,7 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/house_detail.dart';
 import 'package:renting_assistant/widgets/house_cover_horizontal.dart';
@@ -574,7 +575,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                 //取消关注
                 LocalStore.readAccessToken().then((value) {
                   if (value == null) {
-                    print("登录");
+                    Navigator.of(context).pushNamed("/sign-in");
                   } else {
                     NetDataRepo().collect(houseDetailModel.houseId, 0, value).then((value) {
                       if (value == false) {
@@ -583,6 +584,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                         setState(() {
                           collected = 0;
                         });
+                        eventBus.fire(UpdateCollect());
                         _showToast("取消关注成功");
                       }
                     });
@@ -592,7 +594,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                 //关注
                 LocalStore.readAccessToken().then((value) {
                   if (value == null) {
-                    print("登录");
+                    Navigator.of(context).pushNamed("/sign-in");
                   } else {
                     NetDataRepo().collect(houseDetailModel.houseId, 1, value).then((value) {
                       if (value == false) {
@@ -601,6 +603,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
                         setState(() {
                           collected = 1;
                         });
+                        eventBus.fire(UpdateCollect());
                         _showToast("关注成功");
                       }
                     });

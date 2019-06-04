@@ -6,6 +6,8 @@ import 'package:renting_assistant/model/user_info.dart';
 import 'package:renting_assistant/pages/collect_page.dart';
 import 'package:renting_assistant/pages/history_page.dart';
 import 'package:renting_assistant/pages/message_page.dart';
+import 'package:flutter/services.dart';
+import 'package:jpush_flutter/jpush_flutter.dart';
 
 class MinePage extends StatefulWidget {
   @override
@@ -19,12 +21,70 @@ class _MinePageState extends State<MinePage>
   final _iconTextStyle = TextStyle(fontSize: 15.0, color: Colors.black38);
   String accessToken;
   UserInfo userInfo;
+  String debugLable = 'Unknown';
+  final JPush jpush = new JPush();
 
   @override
   void initState() {
     loadAccessToken();
     super.initState();
+    initPlatformState();
 
+  }
+
+  Future<void> initPlatformState() async {
+    String platformVersion;
+
+    // Platform messages may fail, so we use a try/catch PlatformException.
+    jpush.getRegistrationID().then((rid) {
+      setState(() {
+        debugLable = "flutter getRegistrationID: $rid";
+      });
+      print('$rid');
+    });
+
+    jpush.setup(
+      appKey: "fc69e6d87cf4c3fb4fc01519",
+      channel: "theChannel",
+      production: false,
+      debug: true,
+    );
+    jpush.applyPushAuthority(
+        new NotificationSettingsIOS(sound: true, alert: true, badge: true));
+
+    try {
+      jpush.addEventHandler(
+        onReceiveNotification: (Map<String, dynamic> message) async {
+          print("flutter onReceiveNotification: $message");
+          setState(() {
+            debugLable = "flutter onReceiveNotification: $message";
+          });
+        },
+        onOpenNotification: (Map<String, dynamic> message) async {
+          print("flutter onOpenNotification: $message");
+          setState(() {
+            debugLable = "flutter onOpenNotification: $message";
+          });
+        },
+        onReceiveMessage: (Map<String, dynamic> message) async {
+          print("flutter onReceiveMessage: $message");
+          setState(() {
+            debugLable = "flutter onReceiveMessage: $message";
+          });
+        },
+      );
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      debugLable = platformVersion;
+    });
   }
 
   loadAccessToken() async {
@@ -160,7 +220,7 @@ class _MinePageState extends State<MinePage>
                   child: GestureDetector(
                     onTap: () {
                       if (userInfo == null) {
-                        print("ToLogin");
+                        Navigator.of(context).pushNamed('/sign-in');
                       } else {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                           return CollectPage();
@@ -185,7 +245,7 @@ class _MinePageState extends State<MinePage>
                   child: GestureDetector(
                     onTap: () {
                       if (userInfo == null) {
-                        print("ToLogin");
+                        Navigator.of(context).pushNamed('/sign-in');
                       } else {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                           return HistoryPage();
@@ -210,7 +270,7 @@ class _MinePageState extends State<MinePage>
                   child: GestureDetector(
                     onTap: () {
                       if (userInfo == null) {
-                        print("ToLogin");
+                        Navigator.of(context).pushNamed('/sign-in');
                       } else {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                           return MessagePage();
@@ -220,7 +280,7 @@ class _MinePageState extends State<MinePage>
                     child: Column(
                       children: <Widget>[
                         Icon(
-                          Icons.question_answer,
+                          IconData(0xe61a, fontFamily: 'iconfont'),
                           color: Theme.of(context).primaryColor,
                         ),
                         Text(

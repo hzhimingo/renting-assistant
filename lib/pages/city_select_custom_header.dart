@@ -6,6 +6,7 @@ import 'package:azlistview/azlistview.dart';
 import 'package:lpinyin/lpinyin.dart';
 import "package:renting_assistant/model/city_model.dart";
 import 'package:renting_assistant/localstore/local_store.dart';
+import 'package:renting_assistant/model/filter_condition.dart';
 
 class CitySelectCustomHeaderRoute extends StatefulWidget {
   @override
@@ -74,12 +75,12 @@ class _CitySelectCustomHeaderRouteState
   Widget _buildHeader() {
     List<CityInfo> hotCityList = List();
     hotCityList.addAll([
-      CityInfo(name: "北京市"),
-      CityInfo(name: "广州市"),
-      CityInfo(name: "成都市"),
-      CityInfo(name: "深圳市"),
-      CityInfo(name: "杭州市"),
-      CityInfo(name: "武汉市"),
+      CityInfo(name: "北京"),
+      CityInfo(name: "广州"),
+      CityInfo(name: "成都"),
+      CityInfo(name: "深圳"),
+      CityInfo(name: "杭州"),
+      CityInfo(name: "武汉"),
     ]);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -133,6 +134,7 @@ class _CitySelectCustomHeaderRouteState
             onTap: () {
               print("OnItemClick: $model");
               LocalStore.saveCurrentCity(model.name);
+              LocalStore.saveFilterCondition(FilterCondition());
               Navigator.pop(context, model);
             },
           ),

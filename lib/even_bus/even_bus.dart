@@ -58,3 +58,10 @@ class RegionFilterEvent {
 
 class LogOutEvent {}
 class SignInEvent {}
+class UpdateCollect {}
+class ChangeTab {
+  int index;
+  ChangeTab(int index) {
+    this.index = index;
+  }
+}
