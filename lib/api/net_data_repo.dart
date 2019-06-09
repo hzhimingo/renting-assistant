@@ -1,18 +1,20 @@
-
 import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
+import 'package:renting_assistant/model/answer_cover.dart';
+import 'package:renting_assistant/model/answer_detail.dart';
 import 'package:renting_assistant/model/filter_condition.dart';
 import 'package:renting_assistant/model/house_cover_model.dart';
 import 'package:renting_assistant/model/house_detail.dart';
+import 'package:renting_assistant/model/question_cover.dart';
+import 'package:renting_assistant/model/question_detail.dart';
 import 'package:renting_assistant/model/user_info.dart';
 
 class NetDataRepo {
-  /*static String devServerAddress = LocalStore.readDevServerAddress() as String;*/
   static BaseOptions options = BaseOptions(
-      baseUrl: "http://192.168.31.83/api/v1",
+      baseUrl: "http://192.168.43.112/api/v1",
       connectTimeout: 10000,
       receiveTimeout: 10000);
   static Dio _dio = Dio(options);
@@ -35,19 +37,10 @@ class NetDataRepo {
         headers["accessToken"] = value;
       }
     });
-    Response response = await _dio.get(
-      "/house/getHouseDetail",
-      options: Options(
-        headers: headers
-      ),
-      queryParameters: {
-        "houseId": houseId
-      }
-    );
+    Response response = await _dio.get("/house/getHouseDetail",
+        options: Options(headers: headers),
+        queryParameters: {"houseId": houseId});
     houseDetailModel = HouseDetailModel.fromJson(response.data["data"]);
-    print("请求成功>>>>>>>>>>>>>>>>>>成功获取到了房源详细信息");
-    print(response.request.headers["accessToken"]);
-    await Future.delayed(Duration(milliseconds: 100));
     return houseDetailModel;
   }
 
@@ -63,9 +56,7 @@ class NetDataRepo {
     Response response = await _dio.request(
       "/house/getHouses",
       options: Options(
-          method: "GET",
-          contentType: ContentType.parse("application/json")
-      ),
+          method: "GET", contentType: ContentType.parse("application/json")),
       queryParameters: {
         "areaClass": 0,
         "bedRoom": 0,
@@ -86,11 +77,11 @@ class NetDataRepo {
         houseCovers.add(HouseCoverModel.fromJson(item));
       });
     }
-    print("请求成功>>>>>>>>>>>>>>>>>>获取到的房源数量为${houseCovers.length}");
     return houseCovers;
   }
 
-  Future<List<HouseCoverModel>> search(int page, int size, String keyword) async {
+  Future<List<HouseCoverModel>> search(
+      int page, int size, String keyword) async {
     String currentCity;
     await LocalStore.readCurrentCity().then((value) {
       if (value == null) {
@@ -102,9 +93,7 @@ class NetDataRepo {
     Response response = await _dio.request(
       "/house/getHouses",
       options: Options(
-          method: "GET",
-          contentType: ContentType.parse("application/json")
-      ),
+          method: "GET", contentType: ContentType.parse("application/json")),
       queryParameters: {
         "areaClass": 0,
         "bedRoom": 0,
@@ -125,15 +114,15 @@ class NetDataRepo {
         houseCovers.add(HouseCoverModel.fromJson(item));
       });
     }
-    print("请求成功>>>>>>>>>>>>>>>>>>获取到的房源数量为${houseCovers.length}");
     return houseCovers;
   }
 
-  Future<List<HouseCoverModel>> obtainHouseInfoFilter(int page, int size) async {
+  Future<List<HouseCoverModel>> obtainHouseInfoFilter(
+      int page, int size) async {
     String currentCity;
     String geo;
     FilterCondition condition = FilterCondition();
-     await LocalStore.readCurrentCity().then((value) {
+    await LocalStore.readCurrentCity().then((value) {
       if (value == null) {
         currentCity = "北京";
       } else {
@@ -172,9 +161,7 @@ class NetDataRepo {
     Response response = await _dio.request(
       "/house/getHouses",
       options: Options(
-        method: "GET",
-        contentType: ContentType.parse("application/json")
-      ),
+          method: "GET", contentType: ContentType.parse("application/json")),
       queryParameters: paramters,
     );
     List<HouseCoverModel> houseCovers = [];
@@ -183,17 +170,13 @@ class NetDataRepo {
         houseCovers.add(HouseCoverModel.fromJson(item));
       });
     }
-    print(response.request.queryParameters);
-    print("请求成功>>>>>>>>>>>>>>>>>>获取到的房源数量为${houseCovers.length}");
     return houseCovers;
   }
-  
+
   Future<bool> sendCheckCode(String email) async {
     Response response = await _dio.get(
       "/account/getCode",
-      options: Options(
-        method: "GET"
-      ),
+      options: Options(method: "GET"),
       queryParameters: {
         "email": email,
       },
@@ -201,17 +184,16 @@ class NetDataRepo {
     return response.data["code"] == 0 ? true : false;
   }
 
-  Future<String> signIn(String email, String checkCode) async {
-    Response response = await _dio.post(
-      "/account/login",
-      options: Options(
-        method: "POST",
-      ),
-      queryParameters: {
-        "email": email,
-        "code": checkCode,
-      }
-    );
+  Future<String> signIn(String email, String checkCode, String jpushId) async {
+    Response response = await _dio.post("/account/login",
+        options: Options(
+          method: "POST",
+        ),
+        queryParameters: {
+          "email": email,
+          "code": checkCode,
+          "registrationId": jpushId,
+        });
     if (response.data["code"] == 0) {
       return response.data["data"]["accessToken"];
     } else {
@@ -223,12 +205,9 @@ class NetDataRepo {
   Future<UserInfo> obtainUserInfo(String token) async {
     Response response = await _dio.get(
       "/userInfo/getUserInfo",
-      options: Options(
-        method: "GET",
-        headers: {
-          "accessToken": token,
-        }
-      ),
+      options: Options(method: "GET", headers: {
+        "accessToken": token,
+      }),
     );
     if (response.data["code"] == 0) {
       return UserInfo.fromJson(response.data["data"]);
@@ -239,18 +218,14 @@ class NetDataRepo {
   }
 
   Future<bool> collect(String houseId, int status, String accessToken) async {
-    Response response = await _dio.post(
-      "/house/collectHouse",
-      options: Options(
-        headers: {
+    Response response = await _dio.post("/house/collectHouse",
+        options: Options(headers: {
           "accessToken": accessToken,
-        }
-      ),
-      queryParameters: {
-        "status": status,
-        "houseId": houseId,
-      }
-    );
+        }),
+        queryParameters: {
+          "status": status,
+          "houseId": houseId,
+        });
     if (response.data["code"] == 0) {
       return true;
     } else {
@@ -267,9 +242,7 @@ class NetDataRepo {
     });
     Response response = await _dio.get(
       "/userInfo/getCollectHouse",
-      options: Options(
-        headers: headers
-      ),
+      options: Options(headers: headers),
     );
     List<HouseCoverModel> houseCovers = [];
     if (response.data["data"] != null) {
@@ -289,9 +262,7 @@ class NetDataRepo {
     });
     Response response = await _dio.get(
       "/userInfo/getBrowserHistory",
-      options: Options(
-          headers: headers
-      ),
+      options: Options(headers: headers),
     );
     List<HouseCoverModel> houseCovers = [];
     if (response.data["data"] != null) {
@@ -300,5 +271,212 @@ class NetDataRepo {
       });
     }
     return houseCovers;
+  }
+
+  Future<List<AnswerCover>> obtainAnswerCoverList(int page, int size) async {
+    Map<String, dynamic> headers = {};
+    List<AnswerCover> answerCovers = [];
+    try {
+      final response = await _dio.get(
+        "/question/getAllQuestion",
+      );
+      if (response.data["data"] != null) {
+        print("Question请求成功${response.data["data"].length}");
+        response.data["data"].forEach((item) {
+          answerCovers.add(AnswerCover.fromJson(item));
+        });
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}---${e.response.data}');
+    }
+    return answerCovers;
+  }
+
+  Future<List<AnswerCover>> obtainAnswerList() async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    List<AnswerCover> answerCovers = [];
+    try {
+      final response = await _dio.get(
+        "/answer/getQuestionAnswer",
+        options: Options(headers: headers),
+      );
+      if (response.data["data"] != null) {
+        response.data["data"].forEach((item) {
+          answerCovers.add(AnswerCover.fromJson(item));
+        });
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}---${e.response.data}');
+    }
+    return answerCovers;
+  }
+
+  Future<bool> pushQuestion(String title, String content) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    bool flag = false;
+    try {
+      final response = await _dio.post(
+          '/question/publishQuestion',
+          options: Options(
+            headers: headers,
+          ),
+          queryParameters: {
+            'title': title,
+            'content': content,
+            'images': "",
+          }
+      );
+      if (response.data["code"] == 0) {
+        flag = true;
+      } else {
+        flag = false;
+      }
+    } on DioError catch (e){
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return flag;
+  }
+
+  Future<List<QuestionCover>> obtainQuestionCovers() async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    List<QuestionCover> questionCovers = [];
+    try {
+      final response = await _dio.get(
+        "/question/getAllQuestion",
+        options: Options(
+          headers: headers,
+        ),
+      );
+      if (response.data["code"] == 0) {
+        response.data["data"].forEach((item) {
+          questionCovers.add(QuestionCover.fromJson(item));
+        });
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return questionCovers;
+  }
+
+  Future<List<AnswerCover>> obtainAnswerCovers() async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    List<AnswerCover> answerCovers = [];
+    try {
+      final response = await _dio.get(
+        "/answer/getAllAnswer",
+        options: Options(
+          headers: headers,
+        ),
+      );
+      if (response.data["code"] == 0) {
+        response.data["data"].forEach((item) {
+          answerCovers.add(AnswerCover.fromJson(item));
+        });
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return answerCovers;
+  }
+
+  Future<QuestionDetail> obtainQuestionDetail(String questionId) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    QuestionDetail questionDetail;
+    try {
+      final response = await _dio.get(
+        "/question/detail/$questionId",
+        options: Options(
+          headers: headers
+        ),
+      );
+      if (response.data["code"] == 0) {
+        questionDetail = QuestionDetail.fromJson(response.data["data"]);
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return questionDetail;
+  }
+
+  Future<AnswerDetail> obtainAnswerDetail(String answerId) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    AnswerDetail answerDetail;
+    try {
+      final response = await _dio.get(
+        "/answer/detail/" + answerId,
+        options: Options(
+            headers: headers
+        ),
+        queryParameters: {
+          "answerId": answerId
+        }
+      );
+      if (response.data["code"] == 0) {
+        answerDetail = AnswerDetail.fromJson(response.data["data"]);
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return answerDetail;
+  }
+
+  Future<bool> publishAnswer(String questionId, String content) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    bool flag = false;
+    try {
+      final response = await _dio.post(
+          '/answer/publishAnswer',
+          options: Options(
+            headers: headers,
+          ),
+          queryParameters: {
+            "questionId": questionId,
+            "content": content,
+          }
+      );
+      if (response.data["code"] == 0) {
+        flag = true;
+      } else {
+        flag = false;
+      }
+    } on DioError catch (e){
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return flag;
   }
 }

@@ -8,6 +8,7 @@ import 'package:renting_assistant/widgets/home_page_appbar.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:renting_assistant/widgets/house_cover_horizontal.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -167,7 +168,7 @@ class _HomePageState extends State<HomePage>
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10.0),
         image: DecorationImage(
-          image: NetworkImage(
+          image: CachedNetworkImageProvider(
             banners[index],
           ),
           fit: BoxFit.fill,

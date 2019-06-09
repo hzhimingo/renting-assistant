@@ -53,7 +53,7 @@ class _HistoryPageState extends State<HistoryPage> {
           ),
         ],
         centerTitle: true,
-        elevation: 0.0,
+        elevation: 0.4,
       ),
       body: FutureBuilder(
         future: _houseCoverModelFuture,

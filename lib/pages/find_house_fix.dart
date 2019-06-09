@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -237,7 +236,6 @@ class FindHouseFixState extends State<FindHouseFix>
   }
 
   Widget _houseCoverItemBuilder(BuildContext context, int index) {
-    print("THE LENGTH ${houseCoverModels.length}");
     HouseCoverModel houseCoverModel = houseCoverModels[index];
     return HouseCoverVertical(houseCoverModel);
   }

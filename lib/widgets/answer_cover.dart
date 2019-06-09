@@ -1,23 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:renting_assistant/pages/answer_info.dart';
-import 'package:renting_assistant/widgets/answer_detail.dart';
+import 'package:renting_assistant/model/answer_cover.dart';
+import 'package:renting_assistant/pages/answer_detail.dart';
 
 class AnswerCoverBox extends StatelessWidget {
+  final AnswerCover _answerCover;
+
+  AnswerCoverBox(this._answerCover);
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-          return AnswerInfo();
+          return AnswerDetailPage(_answerCover.answerId);
         }));
       },
       child: Container(
         child: Column(
           children: <Widget>[
-            UserInfoBox("A"),
-            Question(),
-            AnswerContent(),
-            AnswerOption(),
+            UserInfoBox(
+              type: "A",
+              nickname: _answerCover.nickname,
+              avatar: _answerCover.avatar,
+              time: _answerCover.answerTime,
+            ),
+            Question(_answerCover.questionTitle),
+            AnswerContent(_answerCover.answerContent),
+            AnswerOption(answerCover: _answerCover,),
           ],
         ),
         margin: EdgeInsets.only(bottom: 10.0),
@@ -35,8 +44,11 @@ class AnswerCoverBox extends StatelessWidget {
 /// 用户信息部分
 class UserInfoBox extends StatelessWidget {
 
+  final String nickname;
+  final String avatar;
+  final String time;
   final String type;
-  UserInfoBox(this.type);
+  UserInfoBox({Key key, this.nickname, this.avatar, this.time, this.type}):super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +61,7 @@ class UserInfoBox extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(
-                    "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827"),
+                    avatar),
               ),
               shape: BoxShape.circle
             ),
@@ -61,7 +73,7 @@ class UserInfoBox extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  "leon.",
+                  nickname,
                   style: TextStyle(
                     fontSize: 18.0,
                   ),
@@ -69,7 +81,7 @@ class UserInfoBox extends StatelessWidget {
                 Row(
                   children: <Widget>[
                     Text(
-                      "21小时前",
+                      time,
                       style: TextStyle(fontSize: 12.0, color: Colors.grey[500]),
                     ),
                     Container(
@@ -101,12 +113,17 @@ class UserInfoBox extends StatelessWidget {
 
 /// 问题部分
 class Question extends StatelessWidget {
+  final String content;
+
+  Question(this.content);
+
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    return Container(
       padding: EdgeInsets.only(top: 15.0, bottom: 5.0),
+      alignment: Alignment.centerLeft,
       child: Text(
-        '总金额675万，90-110平两居，南向，近地铁，小区环境好,总金额675万?',
+        content,
         style: TextStyle(
           fontSize: 16.0,
           fontWeight: FontWeight.w600,
@@ -121,12 +138,17 @@ class Question extends StatelessWidget {
 
 /// 内嵌的第一个回答，简略信息
 class AnswerContent extends StatelessWidget {
+  final String answerContent;
+
+  AnswerContent(this.answerContent);
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.only(top: 5.0, bottom: 15.0),
+      alignment: Alignment.centerLeft,
       child: Text(
-        '谢谢邀请，哈桑上的卡号是打开哈萨克德哈（卡速度很快爱上电话）卡就是对话框哈桑上的卡号是打开哈萨克德哈卡速度很快爱上电话卡就是对话框哈桑上的卡号是打开哈萨克德哈卡速度很快爱上电话卡就是对话框',
+        answerContent,
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
         style: TextStyle(
@@ -147,6 +169,10 @@ class AnswerContent extends StatelessWidget {
 
 /// 点赞、回复、分享部分
 class AnswerOption extends StatefulWidget {
+  final AnswerCover answerCover;
+
+  AnswerOption({Key key, this.answerCover}):super(key: key);
+
   @override
   _AnswerOptionState createState() => _AnswerOptionState();
 }
@@ -175,7 +201,7 @@ class _AnswerOptionState extends State<AnswerOption> {
                       width: 3.0,
                     ),
                     Text(
-                      '10',
+                      '${widget.answerCover.goodCount == 0 ? "" : widget.answerCover.goodCount}',
                       style: TextStyle(color: Colors.grey[400], fontSize: 15.0),
                     ),
                   ],
@@ -186,7 +212,7 @@ class _AnswerOptionState extends State<AnswerOption> {
             child: FlatButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                  return AnswerInfo();
+                  return AnswerDetailPage(widget.answerCover.answerId);
                 }));
               },
               child: Row(
@@ -202,7 +228,7 @@ class _AnswerOptionState extends State<AnswerOption> {
                     width: 3.0,
                   ),
                   Text(
-                    '10',
+                    '${widget.answerCover.replyCount == 0 ? "" : widget.answerCover.replyCount}',
                     style: TextStyle(color: Colors.grey[400]),
                   ),
                 ],

@@ -22,7 +22,7 @@ class HouseInfoPage extends StatefulWidget {
   }
 }
 
-class _HouseInfoPageState extends State<HouseInfoPage> {
+class _HouseInfoPageState extends State<HouseInfoPage> with AutomaticKeepAliveClientMixin{
   double appBarAlpha = 0;
   final _imageWidth = 30.0;
   final _imageHeight = 30.0;
@@ -818,5 +818,8 @@ class _HouseInfoPageState extends State<HouseInfoPage> {
       return newLists;
     }
   }
+
+  @override
+  bool get wantKeepAlive => true;
 
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:renting_assistant/model/house_cover_model.dart';
 import 'package:renting_assistant/pages/house_info_page.dart';
 import 'house_info_tag.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class HouseCoverVertical extends StatelessWidget {
@@ -35,7 +36,7 @@ class HouseCoverVertical extends StatelessWidget {
                   topRight: Radius.circular(8.0),
                 ),
                 image: DecorationImage(
-                  image: NetworkImage(
+                  image: CachedNetworkImageProvider(
                     _houseCoverModel.houseCoverImage,
                   ),
                   fit: BoxFit.cover,

@@ -40,7 +40,7 @@ class _MinePageState extends State<MinePage>
       setState(() {
         debugLable = "flutter getRegistrationID: $rid";
       });
-      print('$rid');
+      LocalStore.saveJpushId(rid);
     });
 
     jpush.setup(

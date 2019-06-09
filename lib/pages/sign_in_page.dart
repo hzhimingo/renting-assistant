@@ -131,7 +131,7 @@ class SignInPageState extends State<SignInPage> {
     );
   }
 
-  _signIn() {
+  _signIn() async {
    if (_phoneController.value.text == "" || _checkCodeController.value.text == "") {
      if (_phoneController.value.text == "") {
        if (_checkCodeController.value.text == "") {
@@ -144,7 +144,12 @@ class SignInPageState extends State<SignInPage> {
      }
    } else {
      _showToast("登录中....");
-     NetDataRepo().signIn(_phoneController.value.text, _checkCodeController.value.text).then((value) {
+     String jpushId;
+     await LocalStore.readJpushId().then((value) {
+       jpushId = value;
+     });
+     print(jpushId);
+     NetDataRepo().signIn(_phoneController.value.text, _checkCodeController.value.text, jpushId).then((value) {
        if (value != null) {
          LocalStore.saveAccessToken(value);
          eventBus.fire(SignInEvent());

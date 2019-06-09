@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class HouseInfoMap extends StatefulWidget {
-  String geoInfo;
+  final String geoInfo;
 
   HouseInfoMap(this.geoInfo);
 
@@ -12,7 +12,7 @@ class HouseInfoMap extends StatefulWidget {
   }
 }
 
-class _HouseInfoMapState extends State<HouseInfoMap> {
+class _HouseInfoMapState extends State<HouseInfoMap> with AutomaticKeepAliveClientMixin{
   WebViewController _controller;
 
   @override
@@ -34,4 +34,7 @@ class _HouseInfoMapState extends State<HouseInfoMap> {
   void dispose() {
     super.dispose();
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

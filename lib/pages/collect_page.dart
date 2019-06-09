@@ -48,7 +48,7 @@ class _CollectPageState extends State<CollectPage> {
         leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: ()=> Navigator.of(context).pop()),
         title: Text('我的关注'),
         centerTitle: true,
-        elevation: 0.0,
+        elevation: 0.4,
       ),
       body: FutureBuilder(
         future: _houseCoverModelFuture,

@@ -65,3 +65,5 @@ class ChangeTab {
     this.index = index;
   }
 }
+class NotifyPop {}
+class RefreshQuestion {}

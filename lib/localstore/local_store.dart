@@ -82,4 +82,19 @@ class LocalStore {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.get("userInfo") != null ? UserInfo.fromJson(jsonDecode(preferences.get("userInfo"))) : null;
   }
+
+  static Future saveJpushId(String id) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.setString("jpushId", id);
+  }
+
+  static Future removeJpushId() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.remove("jpushId");
+  }
+
+  static Future<String> readJpushId() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString("jpushId");
+  }
 }

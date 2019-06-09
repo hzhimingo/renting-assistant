@@ -1,26 +1,46 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
-import 'package:renting_assistant/pages/question_info.dart';
+import 'package:renting_assistant/model/answer_detail.dart';
+import 'package:renting_assistant/pages/edit_answer.dart';
+import 'package:renting_assistant/pages/question_detail.dart';
 import 'package:renting_assistant/widgets/answer_detail.dart';
 
-class AnswerInfo extends StatefulWidget {
+/// 回答详情页面
+class AnswerDetailPage extends StatefulWidget {
+  final String answerId;
+
+  AnswerDetailPage(this.answerId);
+
   @override
-  _AnswerInfoState createState() => _AnswerInfoState();
+  _AnswerDetailPageState createState() => _AnswerDetailPageState();
 }
 
-class _AnswerInfoState extends State<AnswerInfo> {
-
+class _AnswerDetailPageState extends State<AnswerDetailPage> {
   int _currentIndex = 1;
+  Future<AnswerDetail> _answerDetailFuture;
+  AnswerDetail _answerDetail;
 
   @override
   void initState() {
     super.initState();
+    _loadData(widget.answerId);
   }
 
   _listen() {
     eventBus.on<ChangeTab>().listen((event) {
       setState(() {
         _currentIndex = event.index;
+      });
+    });
+  }
+
+  _loadData(String answerId) {
+    _answerDetailFuture = NetDataRepo().obtainAnswerDetail(answerId);
+    _answerDetailFuture.then((value) {
+      setState(() {
+        _answerDetail = value;
       });
     });
   }
@@ -39,26 +59,62 @@ class _AnswerInfoState extends State<AnswerInfo> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        child: ListView(
-          children: <Widget>[
-            QuestionTop(),
-            AnswerDetail(),
-            AnswerOptionInfo(),
-            _buildLisView(),
-          ],
-        ),
+      body: FutureBuilder(
+        future: _answerDetailFuture,
+        builder: (BuildContext context, AsyncSnapshot<AnswerDetail> snap) {
+          switch (snap.connectionState) {
+            case ConnectionState.none:
+            case ConnectionState.active:
+            case ConnectionState.waiting:
+              return Center(
+                child: SpinKitThreeBounce(
+                  color: Colors.cyan[300],
+                  size: 30.0,
+                ),
+              );
+            case ConnectionState.done:
+              return Container(
+                width: MediaQuery.of(context).size.width,
+                child: ListView(
+                  children: <Widget>[
+                    QuestionTop(
+                      questionId: _answerDetail.questionId,
+                      questionTitle: _answerDetail.questionTitle,
+                      answerCount: _answerDetail.answerCount,
+                    ),
+                    AnswerDetailBox(
+                      nickname: _answerDetail.nickname,
+                      avatar: _answerDetail.avatar,
+                      time: _answerDetail.answerTime,
+                      answerContent: _answerDetail.answerContent,
+                    ),
+                    AnswerOptionInfo(
+                      goodCount: _answerDetail.goodCount,
+                      replyCount: _answerDetail.replyCount,
+                    ),
+                    _buildListView(),
+                  ],
+                ),
+              );
+          }
+        },
       ),
     );
   }
 
-  Widget _buildLisView() {
+  Widget _buildListView() {
     return _currentIndex == 0 ? ThumbUseList() : ReplyList();
   }
 }
 
 class QuestionTop extends StatelessWidget {
+  final String questionTitle;
+  final String questionId;
+  final int answerCount;
+
+  QuestionTop({Key key, this.questionTitle, this.questionId, this.answerCount})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -71,10 +127,11 @@ class QuestionTop extends StatelessWidget {
       ),
       child: Column(
         children: <Widget>[
-          Padding(
+          Container(
             padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+            alignment: Alignment.centerLeft,
             child: Text(
-              '相信酷安有很多酷基在上学吧，你们上学期间最喜欢用的笔是啥，拿出来亮亮相呗？',
+              questionTitle,
               style: TextStyle(
                 fontSize: 17.0,
                 fontWeight: FontWeight.w700,
@@ -92,12 +149,14 @@ class QuestionTop extends StatelessWidget {
                 flex: 200,
                 child: FlatButton(
                   onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-                      return QuestionInfo();
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      ///跳转到问题的详情查看全部的回答
+                      return QuestionDetailPage(questionId);
                     }));
                   },
                   child: Text(
-                    '查看全部292个答案',
+                    '查看全部$answerCount个答案',
                     style: TextStyle(
                       color: Colors.grey[500],
                     ),
@@ -114,7 +173,15 @@ class QuestionTop extends StatelessWidget {
               Expanded(
                 flex: 200,
                 child: FlatButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute(builder: (context) {
+                      return EditAnswer(
+                        question: questionTitle,
+                        questionId: questionId,
+                      );
+                    }));
+                  },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -146,6 +213,12 @@ class QuestionTop extends StatelessWidget {
 }
 
 class AnswerOptionInfo extends StatefulWidget {
+  final int goodCount;
+  final int replyCount;
+
+  AnswerOptionInfo({Key key, this.goodCount, this.replyCount})
+      : super(key: key);
+
   @override
   _AnswerOptionInfoState createState() => _AnswerOptionInfoState();
 }
@@ -176,11 +249,13 @@ class _AnswerOptionInfoState extends State<AnswerOptionInfo> {
                 child: Container(
                   height: 40.0,
                   alignment: Alignment.center,
-                  child: Text('赞116'),
+                  child: Text('赞  ${widget.goodCount}'),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: _currentIndex == 0 ? Colors.cyan[300] : Colors.white,
+                        color: _currentIndex == 0
+                            ? Colors.cyan[300]
+                            : Colors.white,
                       ),
                     ),
                   ),
@@ -198,11 +273,13 @@ class _AnswerOptionInfoState extends State<AnswerOptionInfo> {
                 child: Container(
                   height: 40.0,
                   alignment: Alignment.center,
-                  child: Text('回复113'),
+                  child: Text('回复  ${widget.replyCount}'),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
-                        color: _currentIndex == 1 ? Colors.cyan[300] : Colors.white,
+                        color: _currentIndex == 1
+                            ? Colors.cyan[300]
+                            : Colors.white,
                       ),
                     ),
                   ),
