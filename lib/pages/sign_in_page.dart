@@ -56,10 +56,10 @@ class SignInPageState extends State<SignInPage> {
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey[300]),
                           ),
-                          hintText: "请输入手机号",
+                          hintText: "请输入邮箱帐号",
                         ),
                         maxLines: 1,
-                        keyboardType: TextInputType.phone,
+                        keyboardType: TextInputType.emailAddress,
                         controller: _phoneController,
                       ),
                       SizedBox(
@@ -85,7 +85,7 @@ class SignInPageState extends State<SignInPage> {
                           enabledBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: Colors.grey[300]),
                           ),
-                          hintText: "请输入手机验证码",
+                          hintText: "请输入验证码",
                         ),
                         keyboardType: TextInputType.number,
                         controller: _checkCodeController,
@@ -135,42 +135,45 @@ class SignInPageState extends State<SignInPage> {
    if (_phoneController.value.text == "" || _checkCodeController.value.text == "") {
      if (_phoneController.value.text == "") {
        if (_checkCodeController.value.text == "") {
-         _showToast("请输入手机号和验证码");
+         _showToast("请输入邮箱账号号和验证码");
        } else {
-         _showToast("请输入手机号");
+         _showToast("请输入邮箱帐号");
        }
      } else if (_checkCodeController.value.text == "") {
        _showToast("请输入验证码");
      }
    } else {
-     _showToast("登录中....");
-     String jpushId;
-     await LocalStore.readJpushId().then((value) {
-       jpushId = value;
-     });
-     print(jpushId);
-     NetDataRepo().signIn(_phoneController.value.text, _checkCodeController.value.text, jpushId).then((value) {
-       if (value != null) {
-         LocalStore.saveAccessToken(value);
-         eventBus.fire(SignInEvent());
-         Navigator.of(context).pop();
-       } else {
-         _showToast("登录失败");
-       }
-     });
+     if (_validatePhone(_phoneController.value.text)) {
+       String jpushId;
+       await LocalStore.readJpushId().then((value) {
+         jpushId = value;
+       });
+       NetDataRepo().signIn(_phoneController.value.text, _checkCodeController.value.text, jpushId).then((value) {
+         if (value != null) {
+           LocalStore.saveAccessToken(value);
+           eventBus.fire(SignInEvent());
+           Navigator.of(context).pop();
+         } else {
+           _showToast("登录失败，账号或密码错误");
+         }
+       });
+     } else {
+       _showToast("邮箱格式不正确");
+     }
    }
   }
 
   bool _validatePhone(String phone) {
-    return false;
+    RegExp exp = RegExp(r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$");
+    return exp.hasMatch(phone);
   }
 
   _obtainCheckCode() {
     if (_checkTips == "获取验证码") {
       if (_phoneController.value.text == "") {
-        _showToast("请输入手机号");
-      } else if (_validatePhone(_phoneController.value.text)) {
-
+        _showToast("请输入邮箱账号");
+      } else if (!_validatePhone(_phoneController.value.text)) {
+        _showToast("邮箱格式不正确");
       } else {
         NetDataRepo().sendCheckCode(_phoneController.value.text);
         countdown();

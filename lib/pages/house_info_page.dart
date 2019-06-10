@@ -12,6 +12,8 @@ import 'package:renting_assistant/widgets/house_info_map.dart';
 
 const APPBAR_SCROLL_OFFSET = 100;
 
+
+//TODO: FIX 点击后收藏后无法正常显示
 class HouseInfoPage extends StatefulWidget {
   final String houseId;
   HouseInfoPage(this.houseId);
@@ -56,7 +58,6 @@ class _HouseInfoPageState extends State<HouseInfoPage> with AutomaticKeepAliveCl
         houseDetailModel = value;
         collected = value.collectStatus;
       });
-      print(value.collectStatus);
     });
   }
 
@@ -790,7 +791,6 @@ class _HouseInfoPageState extends State<HouseInfoPage> with AutomaticKeepAliveCl
   List<Widget> _buildHouseFacCover() {
     if (_buildHouseFac().length <= 4) {
       List<Widget> lists = [];
-      print("Length: ${_buildHouseFac().length}");
       if (_buildHouseFac().length != 0) {
         for (int i = 0; i < _buildHouseFac().length; i++) {
           lists.add(Expanded(child: _buildHouseFac()[i]));

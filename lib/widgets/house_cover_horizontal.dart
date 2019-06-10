@@ -17,7 +17,6 @@ class HouseCoverHorizontal extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        print("OnTap");
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {

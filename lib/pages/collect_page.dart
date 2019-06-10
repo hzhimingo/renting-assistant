@@ -16,19 +16,21 @@ class _CollectPageState extends State<CollectPage> {
 
   @override
   void initState() {
-    _loadData();
     super.initState();
+    _loadData();
   }
 
   _loadData() async {
     _houseCoverModelFuture = NetDataRepo().obtainCollectList();
-    setState(() {
-      _houseCoverModelFuture.then((value) {
-        if (houseCoverModels.length != 0) {
-          houseCoverModels = [];
-        }
-        houseCoverModels.addAll(value);
-      });
+    _houseCoverModelFuture.then((value) {
+      if (mounted) {
+        setState(() {
+          if (houseCoverModels.length != 0) {
+            houseCoverModels = [];
+          }
+          houseCoverModels.addAll(value);
+        });
+      }
     });
   }
 

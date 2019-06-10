@@ -1,4 +1,5 @@
 import 'package:event_bus/event_bus.dart';
+import 'package:renting_assistant/model/house_cover_model.dart';
 
 EventBus eventBus = EventBus();
 
@@ -67,3 +68,7 @@ class ChangeTab {
 }
 class NotifyPop {}
 class RefreshQuestion {}
+class SearchResult {
+  String keyword;
+  SearchResult(this.keyword);
+}

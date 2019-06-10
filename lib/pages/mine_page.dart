@@ -101,7 +101,6 @@ class _MinePageState extends State<MinePage>
   loadUserInfo(String accessToken) {
     LocalStore.readUserInfo().then((value) {
       if (value == null) {
-        print(accessToken);
         NetDataRepo().obtainUserInfo(accessToken).then((value) {
           if (value != null) {
             LocalStore.saveUserInfo(value);
@@ -309,7 +308,9 @@ class _MinePageState extends State<MinePage>
             ),
           ),
           Container(
-            child: Text('房源数据'),
+            child: Center(
+              child: Text('房源数据'),
+            ),
           )
         ],
       ),

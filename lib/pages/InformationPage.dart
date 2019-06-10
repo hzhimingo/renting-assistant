@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/answer_cover.dart';
 import 'package:renting_assistant/pages/answer_all.dart';
 import 'package:renting_assistant/pages/edit_question.dart';
 import 'package:renting_assistant/pages/question_all.dart';
+import 'package:renting_assistant/pages/question_filter_page.dart';
 import 'package:renting_assistant/widgets/answer_cover.dart';
+
+import 'answe_filter_page.dart';
 
 class InformationPage extends StatefulWidget {
   @override
@@ -21,12 +25,12 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
 
   @override
   void initState() {
-   /* _loadData(0, 10);*/
+    _loadData(0, 10);
     super.initState();
   }
 
   _loadData(int page, int size) {
-    _answerCoversFuture = NetDataRepo().obtainAnswerCoverList(0, 10);
+    _answerCoversFuture = NetDataRepo().obtainAnswerCovers();
     setState(() {
       _answerCoversFuture.then((value) {
         _answerCovers = [];
@@ -53,10 +57,16 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Colors.cyan[300],
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context){
-            return EditQuestionTitle();
-          }));
+        onPressed: () async{
+          await LocalStore.readAccessToken().then((value) {
+            if (value == null) {
+              Navigator.of(context).pushNamed("/sign-in");
+            } else {
+              Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                return EditQuestionTitle();
+              }));
+            }
+          });
         },
       ),
     );
@@ -137,7 +147,7 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
             child: GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                  return QuestionAll();
+                  return QuestionFilterPage();
                 }));
               },
               child: Column(
@@ -163,7 +173,7 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
             child: GestureDetector(
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                  return QuestionAll();
+                  return AnswerFilterPage();
                 }));
               },
               child: Column(

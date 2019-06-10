@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/answer_detail.dart';
 import 'package:renting_assistant/pages/edit_answer.dart';
 import 'package:renting_assistant/pages/question_detail.dart';
@@ -173,14 +174,21 @@ class QuestionTop extends StatelessWidget {
               Expanded(
                 flex: 200,
                 child: FlatButton(
-                  onPressed: () {
-                    Navigator.of(context)
-                        .push(MaterialPageRoute(builder: (context) {
-                      return EditAnswer(
-                        question: questionTitle,
-                        questionId: questionId,
-                      );
-                    }));
+                  onPressed: () async {
+                    await LocalStore.readAccessToken().then((value) {
+                      if (value == null) {
+                        Navigator.of(context).pushNamed("/sign-in");
+                      } else {
+                        Navigator.of(context)
+                            .push(MaterialPageRoute(builder: (context) {
+                          return EditAnswer(
+                            question: questionTitle,
+                            questionId: questionId,
+                          );
+                        }));
+                      }
+                    });
+
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,

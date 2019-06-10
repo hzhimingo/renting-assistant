@@ -88,6 +88,11 @@ class LocalStore {
     return preferences.setString("jpushId", id);
   }
 
+  static Future removeUserInfo() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    preferences.remove("userInfo");
+  }
+
   static Future removeJpushId() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     preferences.remove("jpushId");
@@ -96,5 +101,24 @@ class LocalStore {
   static Future<String> readJpushId() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getString("jpushId");
+  }
+
+  static Future saveKeyWords(String keyword) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    await readKeywords().then((value) {
+      if (value == null) {
+        List<String> keywords = [];
+        keywords.add(keyword);
+        preferences.setStringList("keywords", keywords);
+      } else {
+        value.add(keyword);
+        preferences.setStringList("keywords", value);
+      }
+    });
+  }
+
+  static Future<List<String>> readKeywords() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getStringList("keywords");
   }
 }

@@ -14,20 +14,10 @@ import 'package:renting_assistant/model/user_info.dart';
 
 class NetDataRepo {
   static BaseOptions options = BaseOptions(
-      baseUrl: "http://192.168.43.112/api/v1",
+      baseUrl: "http://192.168.31.83/api/v1",
       connectTimeout: 10000,
       receiveTimeout: 10000);
   static Dio _dio = Dio(options);
-
-  Future<List<HouseCoverModel>> obtainHouseInfo() async {
-    Response response =
-        await _dio.get("http://www.mocky.io/v2/5cda86e3300000290068c765");
-    List<HouseCoverModel> houseCovers = List();
-    response.data.forEach((item) {
-      houseCovers.add(HouseCoverModel.fromJson(item));
-    });
-    return houseCovers;
-  }
 
   Future<HouseDetailModel> obtainHouseDetailInfo(String houseId) async {
     HouseDetailModel houseDetailModel;
@@ -37,6 +27,7 @@ class NetDataRepo {
         headers["accessToken"] = value;
       }
     });
+    print( headers["accessToken"]);
     Response response = await _dio.get("/house/getHouseDetail",
         options: Options(headers: headers),
         queryParameters: {"houseId": houseId});
@@ -53,10 +44,19 @@ class NetDataRepo {
         currentCity = value;
       }
     });
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
     Response response = await _dio.request(
       "/house/getHouses",
       options: Options(
-          method: "GET", contentType: ContentType.parse("application/json")),
+        method: "GET",
+        contentType: ContentType.parse("application/json"),
+        headers: headers,
+      ),
       queryParameters: {
         "areaClass": 0,
         "bedRoom": 0,
@@ -80,8 +80,7 @@ class NetDataRepo {
     return houseCovers;
   }
 
-  Future<List<HouseCoverModel>> search(
-      int page, int size, String keyword) async {
+  Future<List<HouseCoverModel>> search(String keyword) async {
     String currentCity;
     await LocalStore.readCurrentCity().then((value) {
       if (value == null) {
@@ -95,17 +94,8 @@ class NetDataRepo {
       options: Options(
           method: "GET", contentType: ContentType.parse("application/json")),
       queryParameters: {
-        "areaClass": 0,
-        "bedRoom": 0,
         "city": currentCity.replaceAll("市", ""),
-        "condition": "",
-        "highArea": 0,
-        "highPrice": 0,
-        "isHaveLift": 1,
-        "isNearBySubway": 0,
-        "page": page,
-        "rentMode": 0,
-        "size": size
+        "condition": keyword,
       },
     );
     List<HouseCoverModel> houseCovers = [];
@@ -209,6 +199,7 @@ class NetDataRepo {
         "accessToken": token,
       }),
     );
+    print(token);
     if (response.data["code"] == 0) {
       return UserInfo.fromJson(response.data["data"]);
     } else {
@@ -240,6 +231,7 @@ class NetDataRepo {
         headers["accessToken"] = value;
       }
     });
+    print('${headers["accessToken"]}');
     Response response = await _dio.get(
       "/userInfo/getCollectHouse",
       options: Options(headers: headers),
@@ -286,7 +278,7 @@ class NetDataRepo {
           answerCovers.add(AnswerCover.fromJson(item));
         });
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}---${e.response.data}');
     }
     return answerCovers;
@@ -310,7 +302,7 @@ class NetDataRepo {
           answerCovers.add(AnswerCover.fromJson(item));
         });
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}---${e.response.data}');
     }
     return answerCovers;
@@ -325,8 +317,7 @@ class NetDataRepo {
     });
     bool flag = false;
     try {
-      final response = await _dio.post(
-          '/question/publishQuestion',
+      final response = await _dio.post('/question/publishQuestion',
           options: Options(
             headers: headers,
           ),
@@ -334,14 +325,13 @@ class NetDataRepo {
             'title': title,
             'content': content,
             'images': "",
-          }
-      );
+          });
       if (response.data["code"] == 0) {
         flag = true;
       } else {
         flag = false;
       }
-    } on DioError catch (e){
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return flag;
@@ -367,7 +357,7 @@ class NetDataRepo {
           questionCovers.add(QuestionCover.fromJson(item));
         });
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return questionCovers;
@@ -393,7 +383,7 @@ class NetDataRepo {
           answerCovers.add(AnswerCover.fromJson(item));
         });
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return answerCovers;
@@ -410,14 +400,12 @@ class NetDataRepo {
     try {
       final response = await _dio.get(
         "/question/detail/$questionId",
-        options: Options(
-          headers: headers
-        ),
+        options: Options(headers: headers),
       );
       if (response.data["code"] == 0) {
         questionDetail = QuestionDetail.fromJson(response.data["data"]);
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return questionDetail;
@@ -432,19 +420,13 @@ class NetDataRepo {
     });
     AnswerDetail answerDetail;
     try {
-      final response = await _dio.get(
-        "/answer/detail/" + answerId,
-        options: Options(
-            headers: headers
-        ),
-        queryParameters: {
-          "answerId": answerId
-        }
-      );
+      final response = await _dio.get("/answer/detail/" + answerId,
+          options: Options(headers: headers),
+          queryParameters: {"answerId": answerId});
       if (response.data["code"] == 0) {
         answerDetail = AnswerDetail.fromJson(response.data["data"]);
       }
-    } on DioError catch(e) {
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return answerDetail;
@@ -459,22 +441,20 @@ class NetDataRepo {
     });
     bool flag = false;
     try {
-      final response = await _dio.post(
-          '/answer/publishAnswer',
+      final response = await _dio.post('/answer/publishAnswer',
           options: Options(
             headers: headers,
           ),
           queryParameters: {
             "questionId": questionId,
             "content": content,
-          }
-      );
+          });
       if (response.data["code"] == 0) {
         flag = true;
       } else {
         flag = false;
       }
-    } on DioError catch (e){
+    } on DioError catch (e) {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return flag;

@@ -30,7 +30,6 @@ class _HomePageState extends State<HomePage>
   void initState() {
     _loadData(1, 10);
     super.initState();
-    print("Reload");
   }
 
   _loadData(int page, int size) async {

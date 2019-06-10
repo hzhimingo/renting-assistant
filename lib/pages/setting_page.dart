@@ -125,6 +125,8 @@ class _SettingPageState extends State<SettingPage> {
   _logOut() async {
     await LocalStore.removeAccessToken().then((value) {
       eventBus.fire(LogOutEvent());
+      LocalStore.removeAccessToken();
+      LocalStore.removeUserInfo();
       _showToast("成功退出登录");
       Navigator.of(context).pop();
     });

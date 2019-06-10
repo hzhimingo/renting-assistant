@@ -12,6 +12,7 @@ import 'package:renting_assistant/widgets/house_cover_vertical.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/model/filter_condition.dart';
 
+//TODO：点击更多筛选条件无法重载状态
 class FindHouseFix extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -21,6 +22,8 @@ class FindHouseFix extends StatefulWidget {
 
 class FindHouseFixState extends State<FindHouseFix>
     with AutomaticKeepAliveClientMixin {
+  /*String type = "normal";
+  String keyword;*/
   List<Widget> contentWidget = [
     HouseTypeFilterBox(),
     HouseRegion(),
@@ -43,6 +46,11 @@ class FindHouseFixState extends State<FindHouseFix>
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   void _listen() {
     eventBus.on<SendHouseTypeFilterEvent>().listen((event) async{
@@ -119,6 +127,12 @@ class FindHouseFixState extends State<FindHouseFix>
       LocalStore.saveFilterCondition(condition);
       reloadData();
       closeFilterContent();
+    });
+    eventBus.on<SearchResult>().listen((event) {
+      /*setState(() {
+        type = "search";
+        keyword = event.keyword;
+      });*/
     });
   }
 
@@ -819,6 +833,8 @@ class _HouseMoreFilterBoxState extends State<HouseMoreFilterBox> {
   void loadData() async {
     LocalStore.readFilterCondition().then((filterCondition) {
       setState(() {
+        isNearBySubway = filterCondition.isNearBySubway;
+        hasLift = filterCondition.hasLift;
         if (filterCondition.areaClass == 0) {
           _resetAll();
         } else {
