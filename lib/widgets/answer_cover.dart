@@ -26,14 +26,16 @@ class AnswerCoverBox extends StatelessWidget {
             ),
             Question(_answerCover.questionTitle),
             AnswerContent(_answerCover.answerContent),
-            AnswerOption(answerCover: _answerCover,),
+            AnswerOption(
+              answerCover: _answerCover,
+            ),
           ],
         ),
         margin: EdgeInsets.only(bottom: 10.0),
         padding: EdgeInsets.only(
           left: 16.0,
           right: 16.0,
-          top: 16.0,
+          top: 22.0,
         ),
         decoration: BoxDecoration(color: Colors.white),
       ),
@@ -43,12 +45,12 @@ class AnswerCoverBox extends StatelessWidget {
 
 /// 用户信息部分
 class UserInfoBox extends StatelessWidget {
-
   final String nickname;
   final String avatar;
   final String time;
   final String type;
-  UserInfoBox({Key key, this.nickname, this.avatar, this.time, this.type}):super(key: key);
+  UserInfoBox({Key key, this.nickname, this.avatar, this.time, this.type})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -61,13 +63,15 @@ class UserInfoBox extends StatelessWidget {
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(
-                    avatar),
+                  avatar,
+                ),
               ),
-              shape: BoxShape.circle
+              shape: BoxShape.circle,
             ),
           ),
-          Padding(
+          Container(
             padding: EdgeInsets.only(left: 10.0),
+            width: 150.0,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,6 +81,7 @@ class UserInfoBox extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 18.0,
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 Row(
                   children: <Widget>[
@@ -157,11 +162,7 @@ class AnswerContent extends StatelessWidget {
         ),
       ),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: Colors.grey[200]
-          )
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[200])),
       ),
     );
   }
@@ -171,7 +172,7 @@ class AnswerContent extends StatelessWidget {
 class AnswerOption extends StatefulWidget {
   final AnswerCover answerCover;
 
-  AnswerOption({Key key, this.answerCover}):super(key: key);
+  AnswerOption({Key key, this.answerCover}) : super(key: key);
 
   @override
   _AnswerOptionState createState() => _AnswerOptionState();
@@ -211,7 +212,8 @@ class _AnswerOptionState extends State<AnswerOption> {
             flex: 1,
             child: FlatButton(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
                   return AnswerDetailPage(widget.answerCover.answerId);
                 }));
               },

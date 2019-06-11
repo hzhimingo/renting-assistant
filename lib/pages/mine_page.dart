@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
@@ -8,6 +9,8 @@ import 'package:renting_assistant/pages/history_page.dart';
 import 'package:renting_assistant/pages/message_page.dart';
 import 'package:flutter/services.dart';
 import 'package:jpush_flutter/jpush_flutter.dart';
+
+import 'edit_info_page.dart';
 
 class MinePage extends StatefulWidget {
   @override
@@ -164,7 +167,9 @@ class _MinePageState extends State<MinePage>
                       Navigator.of(context).pushNamed("/sign-in").then((value) {
                       });
                     } else {
-                      print("编辑个人信息");
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                        return EditUserInfoPage(userInfo);
+                      }));
                     }
                   },
                   child: Container(
@@ -174,7 +179,7 @@ class _MinePageState extends State<MinePage>
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(65.0),
                       image: DecorationImage(
-                        image: NetworkImage(
+                        image: CachedNetworkImageProvider(
                           userInfo != null
                               ? userInfo.avatar
                               : "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827",
@@ -190,7 +195,9 @@ class _MinePageState extends State<MinePage>
                       Navigator.of(context).pushNamed("/sign-in").then((value) {
                       });
                     } else {
-                      print("编辑个人信息");
+                      Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                        return EditUserInfoPage(userInfo);
+                      }));
                     }
                   },
                   child: Container(

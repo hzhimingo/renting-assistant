@@ -18,7 +18,7 @@ class QuestionCoverBox extends StatelessWidget {
         }));
       },
       child: Container(
-        padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0),
+        padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 22.0),
         margin: EdgeInsets.only(bottom: 10.0),
         color: Colors.white,
         child: Column(
