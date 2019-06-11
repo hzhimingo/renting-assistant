@@ -14,7 +14,7 @@ class _EditQuestionTitleState extends State<EditQuestionTitle> {
   _listen() {
     eventBus.on<NotifyPop>().listen((event){
       _controller.text = '';
-      Navigator.of(context).pop();
+      /*Navigator.of(context).pop();*/
     });
   }
 
@@ -50,7 +50,9 @@ class _EditQuestionTitleState extends State<EditQuestionTitle> {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (context) {
                   return EditQuestionContent(_controller.value.text);
-                }));
+                })).then((_) {
+                  Navigator.of(context).pop();
+                });
               }
             },
           ),
