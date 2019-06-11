@@ -27,7 +27,7 @@ class NetDataRepo {
         headers["accessToken"] = value;
       }
     });
-    print( headers["accessToken"]);
+    print(headers["accessToken"]);
     Response response = await _dio.get("/house/getHouseDetail",
         options: Options(headers: headers),
         queryParameters: {"houseId": houseId});
@@ -458,5 +458,51 @@ class NetDataRepo {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return flag;
+  }
+
+  Future<UserInfo> updateNickname(String newNickname) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    UserInfo userInfo;
+    try {
+      final response = await _dio.put('/userInfo/updateNickname',
+          options: Options(
+            headers: headers,
+          ),
+          queryParameters: {"newNickname" : newNickname});
+      if (response.data["code"] == 0) {
+        userInfo = UserInfo.fromJson(response.data["data"]);
+      }
+    } on DioError catch (e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return userInfo;
+  }
+
+  Future<UserInfo> updateEmail(String email) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    UserInfo userInfo;
+    try {
+      final response = await _dio.put('/userInfo/updateNickname',
+          options: Options(
+            headers: headers,
+          ),
+          queryParameters: {"newEmail" : email});
+      if (response.data["code"] == 0) {
+        userInfo = UserInfo.fromJson(response.data["data"]);
+      }
+    } on DioError catch (e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return userInfo;
   }
 }
