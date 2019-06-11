@@ -494,11 +494,11 @@ class NetDataRepo {
     print('${headers["accessToken"]}');
     UserInfo userInfo;
     try {
-      final response = await _dio.post('/userInfo/updateUserInfo',
+      final response = await _dio.post('/userInfo/updateUserEmail',
           options: Options(
             headers: headers,
           ),
-          queryParameters: {"email" : email, "checkCode": checkCode});
+          queryParameters: {"newEmail" : email, "code": checkCode});
       if (response.data["code"] == 0) {
         userInfo = UserInfo.fromJson(response.data["data"]);
       }

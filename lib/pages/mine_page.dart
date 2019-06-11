@@ -132,6 +132,11 @@ class _MinePageState extends State<MinePage>
         loadAccessToken();
       }
     });
+    eventBus.on<NotifyEditEmailSuccess>().listen((event){
+      if (mounted) {
+        loadAccessToken();
+      }
+    });
   }
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -30,8 +32,12 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
         userInfo = event.userInfo;
       });
     });
+    eventBus.on<NotifyEditEmailSuccess>().listen((event) {
+      setState(() {
+        userInfo = event.userInfo;
+      });
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -118,7 +124,8 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
               color: Colors.white,
               child: ListTile(
                 onTap: () {
-                  Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (context) {
                     return EditEmail(userInfo.email);
                   }));
                 },
@@ -258,11 +265,19 @@ class _EditUserNicknameState extends State<EditUserNickname> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("取消", style: TextStyle(color: Colors.grey[500], fontSize: 15.0,),),
+              child: Text(
+                "取消",
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 15.0,
+                ),
+              ),
             ),
             FlatButton(
               onPressed: () async {
-                await NetDataRepo().updateNickname(_nicknameEditController.value.text).then((userInfo) {
+                await NetDataRepo()
+                    .updateNickname(_nicknameEditController.value.text)
+                    .then((userInfo) {
                   if (userInfo == null) {
                     _showToast("修改失败");
                   } else {
@@ -273,7 +288,13 @@ class _EditUserNicknameState extends State<EditUserNickname> {
                   }
                 });
               },
-              child: Text("确认修改", style: TextStyle(color: Color.fromRGBO(26, 173, 25, 1), fontSize: 15.0,),),
+              child: Text(
+                "确认修改",
+                style: TextStyle(
+                  color: Color.fromRGBO(26, 173, 25, 1),
+                  fontSize: 15.0,
+                ),
+              ),
             )
           ],
         );
@@ -305,8 +326,13 @@ class EditEmail extends StatefulWidget {
 }
 
 class _EditEmailState extends State<EditEmail> {
-
   TextEditingController _emailEditController = TextEditingController();
+  TextEditingController _codeEditController = TextEditingController();
+  Timer _countdownTimer;
+  int _countDownNum = 119;
+  bool canEdit = false;
+  Color _resend = Colors.cyan[400];
+  String _countDownTips = "重新发送";
 
   @override
   Widget build(BuildContext context) {
@@ -374,6 +400,8 @@ class _EditEmailState extends State<EditEmail> {
                 onPressed: () {
                   if (_emailEditController.value.text == "") {
                     _showToast("邮箱不能为空噢！");
+                  } else if (!_validateEmail(_emailEditController.value.text)) {
+                    _showToast("邮箱格式不正确");
                   } else {
                     _showCheckCode(context);
                   }
@@ -393,17 +421,24 @@ class _EditEmailState extends State<EditEmail> {
     );
   }
 
+  bool _validateEmail(String email) {
+    RegExp exp = RegExp(r"^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$");
+    return exp.hasMatch(email);
+  }
+
   _showCheckCode(BuildContext context) {
+    _sendCheckCode(_emailEditController.value.text);
     showDialog(
       context: context,
       builder: (_) {
         return AlertDialog(
           contentPadding: EdgeInsets.all(20.0),
-          title: Text("已经向您的现有邮箱发送了验证码"),
+          title: Text("已经向您的邮箱发送了验证码"),
           content: Container(
             height: 70.0,
             alignment: Alignment.center,
             child: TextField(
+              controller: _codeEditController,
               decoration: InputDecoration(
                 hintText: "请输入验证码",
               ),
@@ -414,55 +449,65 @@ class _EditEmailState extends State<EditEmail> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text("取消", style: TextStyle(color: Colors.grey[500], fontSize: 15.0,),),
+              child: Text(
+                "取消",
+                style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 15.0,
+                ),
+              ),
             ),
             FlatButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                _sendCheckCode(_emailEditController.value.text);
               },
-              child: Text("重新发送(120s)", style: TextStyle(color: Colors.grey[500], fontSize: 15.0,),),
+              child: Text(
+                _countDownTips,
+                style: TextStyle(
+                  color: _resend,
+                  fontSize: 15.0,
+                ),
+              ),
             ),
             FlatButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                if (_codeEditController.value.text == "") {
+                  _showToast("验证码不能为空");
+                } else {
+                  NetDataRepo().updateEmail(
+                    _emailEditController.value.text,
+                    _codeEditController.value.text,
+                  ).then((userInfo) {
+                    if (userInfo == null) {
+                      _showToast("修改失败，验证码错误");
+                    } else {
+                      LocalStore.saveUserInfo(userInfo);
+                      Navigator.of(context).pop();
+                      _showToast("修改成功");
+                      eventBus.fire(NotifyEditEmailSuccess(userInfo));
+                    }
+                  });
+                }
               },
-              child: Text("修改密码", style: TextStyle(color: Color.fromRGBO(26, 173, 25, 1), fontSize: 15.0,),),
+              child: Text(
+                "修改邮箱",
+                style: TextStyle(
+                  color: Color.fromRGBO(26, 173, 25, 1),
+                  fontSize: 15.0,
+                ),
+              ),
             )
           ],
         );
       },
-    );
+    ).then((_) {
+      Navigator.of(context).pop();
+    });
   }
 
-  _showDialog(BuildContext context, String newNickname) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          contentPadding: EdgeInsets.all(20.0),
-          title: Text("确定要将用户名修改为："),
-          content: Container(
-            height: 90.0,
-            alignment: Alignment.center,
-            child: Text(newNickname),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("取消", style: TextStyle(color: Colors.grey[500], fontSize: 15.0,),),
-            ),
-            FlatButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text("确认修改", style: TextStyle(color: Color.fromRGBO(26, 173, 25, 1), fontSize: 15.0,),),
-            )
-          ],
-        );
-      },
-    );
+  _sendCheckCode(String email) async {
+    await NetDataRepo().sendCheckCode(email);
+    /*countdown();*/
   }
 
   _showToast(String msg) {

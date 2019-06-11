@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/answer_cover.dart';
 import 'package:renting_assistant/pages/answer_all.dart';
@@ -39,8 +40,18 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
     });
   }
 
+  _listen() {
+    eventBus.on<RefreshQuestion>().listen((event){
+      if (mounted) {
+        _loadData(0, 10);
+      }
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    _listen();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -64,7 +75,9 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
             } else {
               Navigator.of(context).push(MaterialPageRoute(builder: (context){
                 return EditQuestionTitle();
-              }));
+              })).then((_) {
+                _loadData(0, 10);
+              });
             }
           });
         },

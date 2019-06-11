@@ -14,7 +14,6 @@ class _EditQuestionTitleState extends State<EditQuestionTitle> {
   _listen() {
     eventBus.on<NotifyPop>().listen((event){
       _controller.text = '';
-      /*Navigator.of(context).pop();*/
     });
   }
 
@@ -52,6 +51,7 @@ class _EditQuestionTitleState extends State<EditQuestionTitle> {
                   return EditQuestionContent(_controller.value.text);
                 })).then((_) {
                   Navigator.of(context).pop();
+                  eventBus.fire(RefreshQuestion());
                 });
               }
             },
