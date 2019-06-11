@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/pages/find_house_fix.dart';
+import 'package:renting_assistant/pages/search_result_page.dart';
 
 class SearchPageAppBar extends StatefulWidget implements PreferredSizeWidget {
   final height = 56.0;
@@ -39,9 +40,8 @@ class _SearchPageAppBarState extends State<SearchPageAppBar> {
                 child: TextField(
                   onEditingComplete: () {
                     if (_searchController.value.text != "") {
-                      eventBus.fire(SearchResult(_searchController.value.text));
                       Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                        return FindHouseFix();
+                        return SearchResultPage(_searchController.value.text);
                       }));
                     }
                   },
