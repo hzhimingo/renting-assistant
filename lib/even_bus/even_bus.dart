@@ -77,3 +77,8 @@ class NotifyEditNicknameSuccess{
   UserInfo userInfo;
   NotifyEditNicknameSuccess(this.userInfo);
 }
+
+class NotifyEditEmailSuccess{
+  UserInfo userInfo;
+  NotifyEditEmailSuccess(this.userInfo);
+}

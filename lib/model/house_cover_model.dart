@@ -10,6 +10,7 @@ class HouseCoverModel {
   final int rentMode;
   final double housePrice;
   final String checkin;
+  final double distance;
 
   HouseCoverModel({
     this.houseId,
@@ -23,6 +24,7 @@ class HouseCoverModel {
     this.rentMode,
     this.housePrice,
     this.checkin,
+    this.distance,
   });
 
   factory HouseCoverModel.fromJson(Map<String, dynamic> json) {
@@ -38,6 +40,7 @@ class HouseCoverModel {
       rentMode: json["rentMode"],
       housePrice: json["housePrice"],
       checkin: json["checkin"],
+      distance: json["distance"],
     );
   }
 }

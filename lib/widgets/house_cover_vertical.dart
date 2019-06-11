@@ -90,7 +90,7 @@ class HouseCoverVertical extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Text(
-                    '3KM内',
+                    '${_houseCoverModel.distance}km',
                     style: TextStyle(
                       color: Colors.grey,
                     ),

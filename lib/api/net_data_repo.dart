@@ -484,20 +484,21 @@ class NetDataRepo {
     return userInfo;
   }
 
-  Future<UserInfo> updateEmail(String email) async {
+  Future<UserInfo> updateEmail(String email, String checkCode) async {
     Map<String, dynamic> headers = {};
     await LocalStore.readAccessToken().then((value) {
       if (value != null) {
         headers["accessToken"] = value;
       }
     });
+    print('${headers["accessToken"]}');
     UserInfo userInfo;
     try {
-      final response = await _dio.post('/userInfo/updateNickname',
+      final response = await _dio.post('/userInfo/updateUserInfo',
           options: Options(
             headers: headers,
           ),
-          queryParameters: {"newEmail" : email});
+          queryParameters: {"email" : email, "checkCode": checkCode});
       if (response.data["code"] == 0) {
         userInfo = UserInfo.fromJson(response.data["data"]);
       }

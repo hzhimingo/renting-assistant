@@ -1,6 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
@@ -450,10 +449,11 @@ class _MinePageState extends State<MinePage>
       child: Column(
         children: <Widget>[
           Container(
-            width: 150.0,
-            height: 100.0,
+            width: 140.0,
+            height: 90.0,
             margin: EdgeInsets.only(bottom: 5.0),
             decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5.0),
               image: DecorationImage(
                 image: CachedNetworkImageProvider(
                   image,
