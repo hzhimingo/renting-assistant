@@ -467,13 +467,14 @@ class NetDataRepo {
         headers["accessToken"] = value;
       }
     });
+    print('${headers["accessToken"]}');
     UserInfo userInfo;
     try {
-      final response = await _dio.put('/userInfo/updateNickname',
+      final response = await _dio.post('/userInfo/updateUserInfo',
           options: Options(
             headers: headers,
           ),
-          queryParameters: {"newNickname" : newNickname});
+          queryParameters: {"nickname" : newNickname});
       if (response.data["code"] == 0) {
         userInfo = UserInfo.fromJson(response.data["data"]);
       }
@@ -492,7 +493,7 @@ class NetDataRepo {
     });
     UserInfo userInfo;
     try {
-      final response = await _dio.put('/userInfo/updateNickname',
+      final response = await _dio.post('/userInfo/updateNickname',
           options: Options(
             headers: headers,
           ),

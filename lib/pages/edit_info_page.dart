@@ -1,6 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/even_bus/even_bus.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/user_info.dart';
 
 class EditUserInfoPage extends StatefulWidget {
@@ -13,8 +16,26 @@ class EditUserInfoPage extends StatefulWidget {
 }
 
 class _EditUserInfoPageState extends State<EditUserInfoPage> {
+  UserInfo userInfo;
+
+  @override
+  void initState() {
+    super.initState();
+    userInfo = widget.userInfo;
+  }
+
+  _listen() {
+    eventBus.on<NotifyEditNicknameSuccess>().listen((event) {
+      setState(() {
+        userInfo = event.userInfo;
+      });
+    });
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    _listen();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -55,7 +76,7 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
                     borderRadius: BorderRadius.circular(65.0),
                     image: DecorationImage(
                       image: CachedNetworkImageProvider(
-                        widget.userInfo.avatar,
+                        userInfo.avatar,
                       ),
                       fit: BoxFit.fill,
                     ),
@@ -72,7 +93,7 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (context) {
-                      return EditUserNickname(widget.userInfo.nickname);
+                      return EditUserNickname(userInfo.nickname);
                     }),
                   );
                 },
@@ -83,7 +104,7 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
                   ),
                 ),
                 trailing: Text(
-                  widget.userInfo.nickname,
+                  userInfo.nickname,
                   style: TextStyle(
                     fontSize: 16.0,
                   ),
@@ -98,7 +119,7 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
               child: ListTile(
                 onTap: () {
                   Navigator.of(context).push(MaterialPageRoute(builder: (context){
-                    return EditEmail(widget.userInfo.email);
+                    return EditEmail(userInfo.email);
                   }));
                 },
                 leading: Text(
@@ -108,7 +129,7 @@ class _EditUserInfoPageState extends State<EditUserInfoPage> {
                   ),
                 ),
                 trailing: Text(
-                  widget.userInfo.email,
+                  userInfo.email,
                   style: TextStyle(
                     fontSize: 16.0,
                   ),
@@ -240,15 +261,26 @@ class _EditUserNicknameState extends State<EditUserNickname> {
               child: Text("取消", style: TextStyle(color: Colors.grey[500], fontSize: 15.0,),),
             ),
             FlatButton(
-              onPressed: () {
-                Navigator.of(context).pop();
+              onPressed: () async {
+                await NetDataRepo().updateNickname(_nicknameEditController.value.text).then((userInfo) {
+                  if (userInfo == null) {
+                    _showToast("修改失败");
+                  } else {
+                    LocalStore.saveUserInfo(userInfo);
+                    _showToast("修改成功");
+                    Navigator.of(context).pop();
+                    eventBus.fire(NotifyEditNicknameSuccess(userInfo));
+                  }
+                });
               },
               child: Text("确认修改", style: TextStyle(color: Color.fromRGBO(26, 173, 25, 1), fontSize: 15.0,),),
             )
           ],
         );
       },
-    );
+    ).then((_) {
+      Navigator.of(context).pop();
+    });
   }
 
   _showToast(String msg) {

@@ -128,6 +128,11 @@ class _MinePageState extends State<MinePage>
     eventBus.on<SignInEvent>().listen((event) {
       loadAccessToken();
     });
+    eventBus.on<NotifyEditNicknameSuccess>().listen((event){
+      if (mounted) {
+        loadAccessToken();
+      }
+    });
   }
 
   @override

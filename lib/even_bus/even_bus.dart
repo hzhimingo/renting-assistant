@@ -1,5 +1,6 @@
 import 'package:event_bus/event_bus.dart';
 import 'package:renting_assistant/model/house_cover_model.dart';
+import 'package:renting_assistant/model/user_info.dart';
 
 EventBus eventBus = EventBus();
 
@@ -71,4 +72,8 @@ class RefreshQuestion {}
 class SearchResult {
   String keyword;
   SearchResult(this.keyword);
+}
+class NotifyEditNicknameSuccess{
+  UserInfo userInfo;
+  NotifyEditNicknameSuccess(this.userInfo);
 }
