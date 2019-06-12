@@ -15,14 +15,14 @@ class SearchPageState extends State<SearchPage> {
       appBar: SearchPageAppBar(),
       body: ListView(
         children: <Widget>[
-          ListTile(
+          /*ListTile(
             leading: Icon(Icons.history, size: 20.0,),
             title: Text('天鹅湾', style: TextStyle(fontSize: 14.0,),),
             trailing: IconButton(
               icon: Icon(Icons.delete, size: 20.0,),
               onPressed: () {},
             ),
-          ),
+          ),*/
         ],
       ),
     );

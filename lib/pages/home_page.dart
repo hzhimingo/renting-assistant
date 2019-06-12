@@ -144,16 +144,21 @@ class _HomePageState extends State<HomePage>
             )
           ],
         ),
-        onRefresh: () {
-          _onRefresh();
-        },
+        onRefresh: _onRefresh,
       ),
     );
   }
 
   Future<Null> _onRefresh() async {
-    houseCoverModels.clear();
-    await _loadData(Random().nextInt(5), 10);
+    await NetDataRepo().obtainHouseRecommend(Random().nextInt(5), 10).then((value) {
+      setState(() {
+        if (houseCoverModels.length != 0) {
+          houseCoverModels = [];
+        }
+        houseCoverModels.addAll(value);
+        return;
+      });
+    });
   }
 
   Widget _recommendHouseBuilder(BuildContext context, int index) {

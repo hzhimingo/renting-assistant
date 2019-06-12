@@ -487,7 +487,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> with AutomaticKeepAliveCl
                               height: 10.0,
                               color: Colors.grey[100],
                             ),
-                            Padding(
+                            /*Padding(
                               padding: EdgeInsets.only(left: 16.0, right: 16.0),
                               child: Text(
                                 "看过此房间的人还看了",
@@ -497,7 +497,7 @@ class _HouseInfoPageState extends State<HouseInfoPage> with AutomaticKeepAliveCl
                                   color: Colors.black54,
                                 ),
                               ),
-                            ),
+                            ),*/
                             /*ListView.builder(
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),

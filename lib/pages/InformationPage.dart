@@ -19,14 +19,14 @@ class InformationPage extends StatefulWidget {
   }
 }
 
-class InformationPageState extends State<InformationPage> with AutomaticKeepAliveClientMixin{
-
+class InformationPageState extends State<InformationPage>
+    with AutomaticKeepAliveClientMixin {
   Future<List<AnswerCover>> _answerCoversFuture;
   List<AnswerCover> _answerCovers = [];
 
   @override
   void initState() {
-    _loadData(0, 10);
+    _loadData(0, 20);
     super.initState();
   }
 
@@ -41,13 +41,21 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
   }
 
   _listen() {
-    eventBus.on<RefreshQuestion>().listen((event){
+    eventBus.on<RefreshQuestion>().listen((event) {
       if (mounted) {
-        _loadData(0, 10);
+        _loadData(0, 20);
       }
     });
   }
 
+  Future<Null> _refresh() async{
+    await NetDataRepo().obtainAnswerCovers().then((value) {
+      setState(() {
+        _answerCovers = [];
+        _answerCovers.addAll(value);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,21 +67,24 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
         centerTitle: true,
         elevation: 0.4,
       ),
-      body: ListView(
-        children: <Widget>[
-          _qAOptionBox(),
-          _answerCoverBox(),
-        ],
+      body: RefreshIndicator(
+        child: ListView(
+          children: <Widget>[
+            _qAOptionBox(),
+            _answerCoverBox(),
+          ],
+        ),
+        onRefresh: _refresh,
       ),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
         backgroundColor: Colors.cyan[300],
-        onPressed: () async{
+        onPressed: () async {
           await LocalStore.readAccessToken().then((value) {
             if (value == null) {
               Navigator.of(context).pushNamed("/sign-in");
             } else {
-              Navigator.of(context).push(MaterialPageRoute(builder: (context){
+              Navigator.of(context).push(MaterialPageRoute(builder: (context) {
                 return EditQuestionTitle();
               })).then((_) {
                 _loadData(0, 10);
@@ -89,7 +100,7 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
     return FutureBuilder(
       future: _answerCoversFuture,
       builder: (BuildContext context, AsyncSnapshot<List<AnswerCover>> snap) {
-        switch(snap.connectionState) {
+        switch (snap.connectionState) {
           case ConnectionState.none:
           case ConnectionState.active:
           case ConnectionState.waiting:
@@ -138,7 +149,6 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
                 itemBuilder: _buildAnswerCover,
               );
             }
-
         }
       },
     );
@@ -152,7 +162,8 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
   Widget _qAOptionBox() {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 10.0),
+      padding:
+          EdgeInsets.only(left: 16.0, right: 16.0, top: 10.0, bottom: 10.0),
       margin: EdgeInsets.only(bottom: 10.0),
       child: Flex(
         direction: Axis.horizontal,
@@ -162,7 +173,8 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
           Expanded(
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
                   return QuestionFilterPage();
                 }));
               },
@@ -180,7 +192,10 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
                       ),
                     ),
                   ),
-                  Text('问题精选', style: TextStyle(fontSize: 12.0),),
+                  Text(
+                    '问题精选',
+                    style: TextStyle(fontSize: 12.0),
+                  ),
                 ],
               ),
             ),
@@ -188,7 +203,8 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
           Expanded(
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
                   return AnswerFilterPage();
                 }));
               },
@@ -204,7 +220,10 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
                       ),
                     ),
                   ),
-                  Text('回答精选', style: TextStyle(fontSize: 12.0),),
+                  Text(
+                    '回答精选',
+                    style: TextStyle(fontSize: 12.0),
+                  ),
                 ],
               ),
             ),
@@ -212,7 +231,8 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
           Expanded(
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
                   return QuestionAll();
                 }));
               },
@@ -228,7 +248,10 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
                       ),
                     ),
                   ),
-                  Text('全部问题', style: TextStyle(fontSize: 12.0),),
+                  Text(
+                    '全部问题',
+                    style: TextStyle(fontSize: 12.0),
+                  ),
                 ],
               ),
             ),
@@ -236,7 +259,8 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
           Expanded(
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (context){
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (context) {
                   return AnswerAll();
                 }));
               },
@@ -252,7 +276,10 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
                       ),
                     ),
                   ),
-                  Text('全部回答', style: TextStyle(fontSize: 12.0),),
+                  Text(
+                    '全部回答',
+                    style: TextStyle(fontSize: 12.0),
+                  ),
                 ],
               ),
             ),
@@ -264,5 +291,4 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
 
   @override
   bool get wantKeepAlive => true;
-
 }
