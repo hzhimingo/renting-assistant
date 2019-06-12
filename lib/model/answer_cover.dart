@@ -9,6 +9,7 @@ class AnswerCover {
   final int replyCount;
   final String questionId;
   final String questionTitle;
+  final int goodStatus;
 
   AnswerCover(
       {this.answerId,
@@ -20,7 +21,8 @@ class AnswerCover {
       this.goodCount,
       this.replyCount,
       this.questionId,
-      this.questionTitle});
+      this.questionTitle,
+      this.goodStatus});
 
   factory AnswerCover.fromJson(Map<String, dynamic> json) {
     return AnswerCover(
@@ -34,6 +36,7 @@ class AnswerCover {
       replyCount: json["replyCount"],
       questionId: json["questionId"],
       questionTitle: json["questionTitle"],
+      goodStatus: json["goodStatus"],
     );
   }
 }

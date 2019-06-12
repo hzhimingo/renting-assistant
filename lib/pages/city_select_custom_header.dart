@@ -94,6 +94,8 @@ class _CitySelectCustomHeaderRouteState
             child: Text(e.name),
             onPressed: () {
               print("OnItemClick: $e");
+              LocalStore.saveCurrentCity(e.name);
+              LocalStore.saveFilterCondition(FilterCondition());
               Navigator.pop(context, e);
             },
           );

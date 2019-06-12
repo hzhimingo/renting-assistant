@@ -474,7 +474,7 @@ class NetDataRepo {
           options: Options(
             headers: headers,
           ),
-          queryParameters: {"nickname" : newNickname});
+          queryParameters: {"nickname": newNickname});
       if (response.data["code"] == 0) {
         userInfo = UserInfo.fromJson(response.data["data"]);
       }
@@ -498,7 +498,7 @@ class NetDataRepo {
           options: Options(
             headers: headers,
           ),
-          queryParameters: {"newEmail" : email, "code": checkCode});
+          queryParameters: {"newEmail": email, "code": checkCode});
       if (response.data["code"] == 0) {
         userInfo = UserInfo.fromJson(response.data["data"]);
       }
@@ -506,5 +506,67 @@ class NetDataRepo {
       print('请求失败---错误码：${e.response.statusCode}');
     }
     return userInfo;
+  }
+
+  Future<bool> like(String answerId, int goodStatus) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    bool flag = false;
+    try {
+      final response = await _dio.post(
+        '/good/updateGood',
+        options: Options(
+          headers: headers,
+        ),
+        queryParameters: {
+          "answerId": answerId,
+          "goodStatus": goodStatus,
+        },
+      );
+      if (response.data["code"] == 0) {
+        flag = true;
+      } else {
+        flag = false;
+      }
+    } on DioError catch (e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return flag;
+  }
+
+  Future<List<UserInfo>> obtainGoodUsers(String answerId) async {
+    Map<String, dynamic> headers = {};
+    await LocalStore.readAccessToken().then((value) {
+      if (value != null) {
+        headers["accessToken"] = value;
+      }
+    });
+    List<UserInfo> users = [];
+    try {
+      final response = await _dio.get(
+        '/good/getGoodUsers',
+        options: Options(
+          headers: headers,
+        ),
+        queryParameters: {
+          "answerId": answerId,
+          "page": 0,
+          "size": 10,
+        },
+      );
+      if (response.data["code"] == 0) {
+        print("length${response.data["data"].length}");
+        response.data["data"].forEach((item) {
+          users.add(UserInfo.fromJson(item));
+        });
+      }
+    } on DioError catch(e) {
+      print('请求失败---错误码：${e.response.statusCode}');
+    }
+    return users;
   }
 }

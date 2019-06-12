@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:renting_assistant/model/message.dart';
+import 'package:renting_assistant/widgets/notification.dart';
 
 class MessagePage extends StatefulWidget {
   @override
@@ -6,6 +8,7 @@ class MessagePage extends StatefulWidget {
 }
 
 class _MessagePageState extends State<MessagePage> {
+  List<Message> _messages = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,8 +19,19 @@ class _MessagePageState extends State<MessagePage> {
         centerTitle: true,
         elevation: 0.0,
       ),
-      body: Center(
-        child: Text('Message'),
+      body: Container(
+        child: ListView(
+          children: <Widget>[
+            AnswerQuestionNotification(
+              avatar: "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827",
+              nickname: "leon",
+            ),
+            AnswerQuestionNotification(
+              avatar: "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827",
+              nickname: "leon01",
+            ),
+          ],
+        ),
       ),
     );
   }

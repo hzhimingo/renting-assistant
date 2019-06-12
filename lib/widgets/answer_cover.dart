@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:renting_assistant/api/net_data_repo.dart';
+import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/answer_cover.dart';
 import 'package:renting_assistant/pages/answer_detail.dart';
 
@@ -179,6 +182,20 @@ class AnswerOption extends StatefulWidget {
 }
 
 class _AnswerOptionState extends State<AnswerOption> {
+  bool isGood;
+  int goodCount;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.answerCover.goodStatus == 0) {
+      isGood = false;
+    } else {
+      isGood = true;
+    }
+    goodCount = widget.answerCover.goodCount;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -188,21 +205,54 @@ class _AnswerOptionState extends State<AnswerOption> {
           Expanded(
               flex: 1,
               child: FlatButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await LocalStore.readAccessToken().then((value) {
+                    if (value == null) {
+                      Navigator.of(context).pushNamed("/sign-in");
+                    } else {
+                      if (isGood) {
+                        NetDataRepo().like(widget.answerCover.answerId, 0).then((value){
+                          if (value) {
+                            _showToast("取消成功");
+                            setState(() {
+                              goodCount--;
+                            });
+                          } else {
+                            _showToast("取消点赞失败");
+                          }
+                        });
+                      } else {
+                        NetDataRepo().like(widget.answerCover.answerId, 1).then((value){
+                          if (value) {
+                            _showToast("点赞成功");
+                            setState(() {
+                              goodCount++;
+                            });
+                          } else {
+                            _showToast("点赞失败");
+                          }
+                        });
+                      }
+                      setState(() {
+                        isGood = !isGood;
+                      });
+                    }
+                  });
+                },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
                     Icon(
                       IconData(0xe756, fontFamily: 'iconfont'),
-                      color: Colors.grey[400],
+                      color: isGood ? Colors.cyan[300] : Colors.grey[500],
                       size: 20.0,
                     ),
                     SizedBox(
                       width: 3.0,
                     ),
                     Text(
-                      '${widget.answerCover.goodCount == 0 ? "" : widget.answerCover.goodCount}',
+                      '${goodCount == 0 ? "" : goodCount}',
                       style: TextStyle(color: Colors.grey[400], fontSize: 15.0),
                     ),
                   ],
@@ -256,6 +306,18 @@ class _AnswerOptionState extends State<AnswerOption> {
           ),
         ],
       ),
+    );
+  }
+
+  _showToast(String msg) {
+    Fluttertoast.showToast(
+        msg: msg,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        timeInSecForIos: 1,
+        backgroundColor: Color.fromRGBO(0, 0, 0, 0.6),
+        textColor: Colors.white,
+        fontSize: 14.0
     );
   }
 }

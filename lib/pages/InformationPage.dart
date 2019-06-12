@@ -93,10 +93,13 @@ class InformationPageState extends State<InformationPage> with AutomaticKeepAliv
           case ConnectionState.none:
           case ConnectionState.active:
           case ConnectionState.waiting:
-            return Center(
-              child: SpinKitThreeBounce(
-                color: Colors.cyan[300],
-                size: 30.0,
+            return Container(
+              height: 400.0,
+              child: Center(
+                child: SpinKitThreeBounce(
+                  color: Colors.cyan[300],
+                  size: 30.0,
+                ),
               ),
             );
           case ConnectionState.done:

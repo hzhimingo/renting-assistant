@@ -8,7 +8,7 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:name="io.flutter.app.FlutterApplication"
-        android:label="renting_assistant"
+        android:label="租客"
         android:icon="@mipmap/ic_launcher">
         <meta-data
             android:name="com.amap.api.v2.apikey"

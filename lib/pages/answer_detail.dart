@@ -4,6 +4,7 @@ import 'package:renting_assistant/api/net_data_repo.dart';
 import 'package:renting_assistant/even_bus/even_bus.dart';
 import 'package:renting_assistant/localstore/local_store.dart';
 import 'package:renting_assistant/model/answer_detail.dart';
+import 'package:renting_assistant/model/user_info.dart';
 import 'package:renting_assistant/pages/edit_answer.dart';
 import 'package:renting_assistant/pages/question_detail.dart';
 import 'package:renting_assistant/widgets/answer_detail.dart';
@@ -22,6 +23,7 @@ class _AnswerDetailPageState extends State<AnswerDetailPage> {
   int _currentIndex = 1;
   Future<AnswerDetail> _answerDetailFuture;
   AnswerDetail _answerDetail;
+  List<UserInfo> users = [];
 
   @override
   void initState() {
@@ -31,9 +33,11 @@ class _AnswerDetailPageState extends State<AnswerDetailPage> {
 
   _listen() {
     eventBus.on<ChangeTab>().listen((event) {
-      setState(() {
-        _currentIndex = event.index;
-      });
+      if (mounted) {
+        setState(() {
+          _currentIndex = event.index;
+        });
+      }
     });
   }
 
@@ -42,6 +46,10 @@ class _AnswerDetailPageState extends State<AnswerDetailPage> {
     _answerDetailFuture.then((value) {
       setState(() {
         _answerDetail = value;
+      });
+      NetDataRepo().obtainGoodUsers(_answerDetail.answerId).then((value) {
+        users = [];
+        users.addAll(value);
       });
     });
   }
@@ -92,6 +100,7 @@ class _AnswerDetailPageState extends State<AnswerDetailPage> {
                     AnswerOptionInfo(
                       goodCount: _answerDetail.goodCount,
                       replyCount: _answerDetail.replyCount,
+                      answerId: _answerDetail.answerId,
                     ),
                     _buildListView(),
                   ],
@@ -104,7 +113,7 @@ class _AnswerDetailPageState extends State<AnswerDetailPage> {
   }
 
   Widget _buildListView() {
-    return _currentIndex == 0 ? ThumbUseList() : ReplyList();
+    return _currentIndex == 0 ? ThumbUserList(users) : ReplyList();
   }
 }
 
@@ -152,7 +161,6 @@ class QuestionTop extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context)
                         .push(MaterialPageRoute(builder: (context) {
-                      ///跳转到问题的详情查看全部的回答
                       return QuestionDetailPage(questionId);
                     }));
                   },
@@ -185,7 +193,9 @@ class QuestionTop extends StatelessWidget {
                             question: questionTitle,
                             questionId: questionId,
                           );
-                        }));
+                        })).then((_) {
+                          Navigator.of(context).pop();
+                        });
                       }
                     });
 
@@ -223,8 +233,9 @@ class QuestionTop extends StatelessWidget {
 class AnswerOptionInfo extends StatefulWidget {
   final int goodCount;
   final int replyCount;
+  final String answerId;
 
-  AnswerOptionInfo({Key key, this.goodCount, this.replyCount})
+  AnswerOptionInfo({Key key, this.goodCount, this.replyCount, this.answerId})
       : super(key: key);
 
   @override
@@ -301,22 +312,38 @@ class _AnswerOptionInfoState extends State<AnswerOptionInfo> {
   }
 }
 
-class ThumbUseList extends StatelessWidget {
+class ThumbUserList extends StatelessWidget {
+  final List<UserInfo> users;
+
+  ThumbUserList(this.users);
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      width: MediaQuery.of(context).size.width,
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        itemCount: 10,
-        itemBuilder: _thumbUserBuilder,
-      ),
-    );
+    if (users.length == 0) {
+      return Container(
+        color: Colors.white,
+        width: MediaQuery.of(context).size.width,
+        height: 300.0,
+        child: Center(
+          child: Text("还没有人点赞噢"),
+        ),
+      );
+    } else {
+      return Container(
+        color: Colors.white,
+        width: MediaQuery.of(context).size.width,
+        child: ListView.builder(
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: users.length,
+          itemBuilder: _thumbUserBuilder,
+        ),
+      );
+    }
   }
 
   Widget _thumbUserBuilder(BuildContext context, int index) {
+    UserInfo _userInfo = users[index];
     return Padding(
       padding: EdgeInsets.only(
         top: 10.0,
@@ -334,12 +361,12 @@ class ThumbUseList extends StatelessWidget {
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: NetworkImage(
-                        'https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827'),
+                      _userInfo.avatar,),
                   ),
                   shape: BoxShape.circle,
                 ),
               ),
-              Text("下个ID见"),
+              Text(_userInfo.nickname),
             ],
           ),
           Divider(
@@ -351,13 +378,15 @@ class ThumbUseList extends StatelessWidget {
   }
 }
 
+
 class ReplyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
+      height: 300.0,
       child: Center(
-        child: Text('回复'),
+        child: Text('回复系统暂不可用'),
       ),
     );
   }
