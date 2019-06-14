@@ -190,7 +190,7 @@ class _MinePageState extends State<MinePage>
                         image: CachedNetworkImageProvider(
                           userInfo != null
                               ? userInfo.avatar
-                              : "https://avatar.gitee.com/uploads/29/4790229_leonzm.png!avatar100?1548256827",
+                              : "https://ra-1257167414.cos.ap-shanghai.myqcloud.com/avatar/avatar_default.png",
                         ),
                         fit: BoxFit.fill,
                       ),
